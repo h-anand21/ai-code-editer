@@ -6,9 +6,6 @@ import {
   Sidebar,
   SidebarContent,
   SidebarHeader,
-  SidebarMenu,
-  SidebarMenuItem,
-  SidebarMenuButton,
 } from "@/components/ui/sidebar";
 import {
   Collapsible,
@@ -16,36 +13,40 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import { Button } from "@/components/ui/button";
+import { Folder, File as FileIcon, FolderOpen, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Folder, File as FileIcon, FolderOpen } from "lucide-react";
 
 type FileTreeProps = {
   project: Project;
   onFileSelect: (file: FileNode) => void;
+  activeFileId: string | null;
 };
 
 const TreeNode = ({
   node,
   onFileSelect,
+  activeFileId,
 }: {
   node: FileNode;
   onFileSelect: (file: FileNode) => void;
+  activeFileId: string | null;
 }) => {
   const [isOpen, setIsOpen] = React.useState(true);
 
   if (node.type === "folder") {
     return (
-      <Collapsible open={isOpen} onOpenChange={setIsOpen} className="pl-4">
-        <CollapsibleTrigger className="w-full">
-          <div className="flex items-center gap-2 text-sm text-sidebar-foreground/80 hover:text-sidebar-foreground py-1.5 px-2 rounded-md hover:bg-sidebar-accent">
+      <Collapsible open={isOpen} onOpenChange={setIsOpen} className="space-y-1">
+        <CollapsibleTrigger asChild>
+          <div className="flex items-center gap-1.5 text-sm text-sidebar-foreground/80 hover:text-sidebar-foreground py-1.5 px-2 rounded-md hover:bg-sidebar-accent cursor-pointer">
+            <ChevronRight className={cn("h-4 w-4 shrink-0 transition-transform", isOpen && "rotate-90")} />
             {isOpen ? <FolderOpen className="h-4 w-4 text-primary" /> : <Folder className="h-4 w-4 text-primary" />}
             <span>{node.name}</span>
           </div>
         </CollapsibleTrigger>
-        <CollapsibleContent>
-          <div className="flex flex-col">
+        <CollapsibleContent className="pl-5">
+          <div className="flex flex-col space-y-1">
             {node.children?.map((child) => (
-              <TreeNode key={child.id} node={child} onFileSelect={onFileSelect} />
+              <TreeNode key={child.id} node={child} onFileSelect={onFileSelect} activeFileId={activeFileId} />
             ))}
           </div>
         </CollapsibleContent>
@@ -54,22 +55,20 @@ const TreeNode = ({
   }
 
   return (
-    <div className="pl-4">
-      <Button
-        variant="ghost"
-        className="w-full justify-start h-auto py-1.5 px-2"
-        onClick={() => onFileSelect(node)}
-      >
-        <div className="flex items-center gap-2 text-sm font-normal">
-          <FileIcon className="h-4 w-4" />
-          <span>{node.name}</span>
-        </div>
-      </Button>
-    </div>
+    <Button
+      variant={activeFileId === node.id ? "secondary" : "ghost"}
+      className="w-full justify-start h-auto py-1.5 px-2"
+      onClick={() => onFileSelect(node)}
+    >
+      <div className="flex items-center gap-2 text-sm font-normal">
+        <FileIcon className="h-4 w-4" />
+        <span>{node.name}</span>
+      </div>
+    </Button>
   );
 };
 
-export function FileTree({ project, onFileSelect }: FileTreeProps) {
+export function FileTree({ project, onFileSelect, activeFileId }: FileTreeProps) {
   return (
     <Sidebar collapsible="icon" className="border-r">
       <SidebarHeader className="p-4">
@@ -77,10 +76,10 @@ export function FileTree({ project, onFileSelect }: FileTreeProps) {
           Explorer
         </h2>
       </SidebarHeader>
-      <SidebarContent className="p-0">
+      <SidebarContent className="p-2">
         <div className="flex flex-col gap-1">
           {project.files.map((node) => (
-            <TreeNode key={node.id} node={node} onFileSelect={onFileSelect} />
+            <TreeNode key={node.id} node={node} onFileSelect={onFileSelect} activeFileId={activeFileId} />
           ))}
         </div>
       </SidebarContent>

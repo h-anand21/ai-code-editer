@@ -10,7 +10,6 @@ import { EditorPane } from "@/components/app/editor-pane";
 import { AIPanel } from "@/components/app/ai-panel";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
-import { PanelRight } from "lucide-react";
 
 function getInitialFileContents(nodes: FileNode[]): Record<string, string> {
   const contents: Record<string, string> = {};
@@ -145,7 +144,7 @@ export function MainLayout() {
       <div className="flex flex-col h-screen bg-background text-foreground overflow-hidden">
         <AppHeader projectName={mockProject.name} />
         <div className="flex flex-1 overflow-hidden">
-          <FileTree project={mockProject} onFileSelect={handleFileSelect} />
+          <FileTree project={mockProject} onFileSelect={handleFileSelect} activeFileId={activeFileId} />
           <main className="flex flex-1 min-w-0">
             <div className="flex-1 flex flex-col min-w-0">
               <EditorPane
