@@ -139,17 +139,13 @@ const ThemeToggle = () => {
 export const TopBar: React.FC<TopBarProps> = ({ project }) => {
   return (
     <header className="flex h-14 items-center gap-4 border-b bg-card px-4 shrink-0">
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 mr-auto">
          <AetherCodeLogo className="h-6 w-6 text-primary" />
          <span className="font-semibold text-lg hidden md:inline">AetherCode</span>
       </div>
 
-      <div className="flex-1 flex justify-center items-center gap-4">
-        <h1 className="text-lg font-semibold">{project.name}</h1>
+      <div className="flex items-center gap-2">
         <BranchSelector currentBranch={project.branch} />
-      </div>
-
-      <div className="flex items-center gap-2 ml-auto">
         <AutosaveIndicator />
         <PresenceBar users={project.collaborators} />
         <Button variant="secondary" size="sm">
