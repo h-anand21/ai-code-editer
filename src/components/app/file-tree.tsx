@@ -5,7 +5,7 @@ import type { Project, FileNode } from "@/lib/types";
 import {
   Sidebar,
   SidebarContent,
-  SidebarHeader,
+  SidebarFooter,
 } from "@/components/ui/sidebar";
 import {
   Collapsible,
@@ -71,11 +71,6 @@ const TreeNode = ({
 export function FileTree({ project, onFileSelect, activeFileId }: FileTreeProps) {
   return (
     <Sidebar collapsible="icon" className="border-r">
-      <SidebarHeader className="p-4">
-        <h2 className="text-lg font-semibold text-sidebar-foreground group-data-[collapsible=icon]:hidden">
-          Explorer
-        </h2>
-      </SidebarHeader>
       <SidebarContent className="p-2">
         <div className="flex flex-col gap-1">
           {project.files.map((node) => (
@@ -83,6 +78,11 @@ export function FileTree({ project, onFileSelect, activeFileId }: FileTreeProps)
           ))}
         </div>
       </SidebarContent>
+      <SidebarFooter className="p-4 mt-auto">
+        <h2 className="text-lg font-semibold text-sidebar-foreground group-data-[collapsible=icon]:hidden">
+          Explorer
+        </h2>
+      </SidebarFooter>
     </Sidebar>
   );
 }
