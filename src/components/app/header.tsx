@@ -28,11 +28,13 @@ export function AppHeader({ projectName }: AppHeaderProps) {
       </div>
 
       <div className="flex-1">
-        <span className="text-sm text-muted-foreground hidden md:inline">Project:</span>
-        <span className="ml-2 font-medium">{projectName}</span>
+        <div className="w-full">
+            <span className="text-sm text-muted-foreground hidden md:inline">Project:</span>
+            <span className="ml-2 font-medium">{projectName}</span>
+        </div>
       </div>
 
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-4 ml-auto">
         <Button variant="outline" size="sm">
           <Share2 className="mr-2 h-4 w-4" />
           Share
