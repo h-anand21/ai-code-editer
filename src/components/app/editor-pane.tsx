@@ -52,17 +52,22 @@ export function EditorPane({
                 className="h-10 px-4 py-2 text-sm rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-background data-[state=active]:shadow-none hover:bg-accent flex items-center gap-2 group"
               >
                 <span>{file.name}</span>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-5 w-5 rounded-full ml-2 opacity-50 group-hover:opacity-100"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onCloseTab(file.id);
-                  }}
+                <div
+                  onClick={(e) => e.stopPropagation()}
+                  className="ml-2"
                 >
-                  <X className="h-3 w-3" />
-                </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-5 w-5 rounded-full opacity-50 group-hover:opacity-100"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onCloseTab(file.id);
+                    }}
+                  >
+                    <X className="h-3 w-3" />
+                  </Button>
+                </div>
               </TabsTrigger>
             ))}
           </TabsList>
