@@ -1,99 +1,87 @@
-import type { Project, FileNode } from './types';
+import type { Project, FileNode, Suggestion, PresenceUser, Language } from './types';
+import { formatDistanceToNow } from 'date-fns';
 
-const readmeContent = `# Welcome to AetherCode!
+const now = new Date();
 
-This is a demo project to showcase the capabilities of AetherCode, your AI-powered coding companion.
+const getRelativeTime = (date: Date) => formatDistanceToNow(date, { addSuffix: true });
 
-## Features
-
-- **File Explorer**: Browse your project files on the left.
-- **Tabbed Editor**: Open and edit multiple files.
-- **AI Assistance**: Use the panel on the right to get code suggestions and diagnostics.
-
-Try selecting a file and using the AI tools!
-`;
-
-const htmlContent = `<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AetherCode</title>
-  <link rel="stylesheet" href="style.css">
-</head>
-<body>
-  <h1>Hello, AetherCode!</h1>
-  <p>This is a live preview of your web project.</p>
-  <script src="script.js"></script>
-</body>
-</html>`;
-
-const cssContent = `body {
-  font-family: sans-serif;
-  background-color: #f0f0f0;
-  color: #333;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-}
-
-h1 {
-  color: #007acc;
-}`;
-
-const jsContent = `document.addEventListener('DOMContentLoaded', () => {
-  const heading = document.querySelector('h1');
-  heading.addEventListener('click', () => {
-    alert('You clicked the heading!');
-    // Try asking the AI to add a new feature here.
-    // For example: "add a new paragraph element with some text"
-  });
-});`;
-
-const pythonContent = `# A simple Python script
-def greet(name):
-  """This function greets the person passed in as a parameter."""
-  print(f"Hello, {name}!")
-
-# Try using the AI Diagnostics tool on this code.
-# There aren't any bugs, but it might suggest type hints!
-if __name__ == "__main__":
-  greet("AetherCoder")`;
-
-const fileTree: FileNode[] = [
+const mockFiles: FileNode[] = [
   {
     id: '1',
     name: 'README.md',
+    path: '/README.md',
     type: 'file',
-    content: readmeContent,
-    language: 'typescript',
+    language: 'markdown',
+    content: '# Welcome to Your Project!\n\nThis is a sample project structure.',
+    lastModified: getRelativeTime(new Date(now.getTime() - 1000 * 60 * 5)),
   },
   {
     id: '2',
-    name: 'WebApp',
+    name: 'src',
+    path: '/src',
     type: 'folder',
+    lastModified: getRelativeTime(new Date(now.getTime() - 1000 * 60 * 10)),
     children: [
-      { id: '3', name: 'index.html', type: 'file', content: htmlContent, language: 'html' },
-      { id: '4', name: 'style.css', type: 'file', content: cssContent, language: 'css' },
-      { id: '5', name: 'script.js', type: 'file', content: jsContent, language: 'typescript' },
+      {
+        id: '3',
+        name: 'index.tsx',
+        path: '/src/index.tsx',
+        type: 'file',
+        language: 'typescript',
+        content: `import React from 'react';\nimport ReactDOM from 'react-dom/client';\n\nconst App = () => <h1>Hello, World!</h1>;\n\nconst root = ReactDOM.createRoot(document.getElementById('root'));\nroot.render(<App />);`,
+        lastModified: getRelativeTime(new Date(now.getTime() - 1000 * 60 * 2)),
+      },
+      {
+        id: '4',
+        name: 'components',
+        path: '/src/components',
+        type: 'folder',
+        lastModified: getRelativeTime(new Date(now.getTime() - 1000 * 60 * 8)),
+        children: [],
+      },
     ],
   },
   {
-    id: '6',
-    name: 'utils',
-    type: 'folder',
-    children: [
-      { id: '7', name: 'helpers.py', type: 'file', content: pythonContent, language: 'python' }
-    ],
+    id: '5',
+    name: 'package.json',
+    path: '/package.json',
+    type: 'file',
+    language: 'json',
+    content: JSON.stringify({ name: 'my-app', version: '0.1.0' }, null, 2),
+    lastModified: getRelativeTime(new Date(now.getTime() - 1000 * 60 * 20)),
   },
 ];
 
+
+export const mockUsers: PresenceUser[] = [
+  { id: 'user-1', name: 'Alex Johnson', avatarUrl: 'https://picsum.photos/seed/alex/32/32', status: 'active', lastActive: 'now' },
+  { id: 'user-2', name: 'Maria Garcia', avatarUrl: 'https://picsum.photos/seed/maria/32/32', status: 'idle', lastActive: '5m ago' },
+  { id: 'user-3', name: 'Chen Wei', avatarUrl: 'https://picsum.photos/seed/chen/32/32', status: 'offline', lastActive: '2h ago' },
+];
+
 export const mockProject: Project = {
-  id: 'proj_1',
-  name: 'Demo Project',
-  files: fileTree,
-  ownerId: 'user_123',
+  id: 'proj-123',
+  name: 'AetherCode Demo',
+  files: mockFiles,
+  ownerId: 'user-1',
   createdAt: new Date().toISOString(),
+  branch: 'main',
+  collaborators: mockUsers,
 };
+
+export const mockSuggestions: Suggestion[] = [
+    {
+        id: 'sug-1',
+        fileId: '3',
+        type: 'suggestion',
+        snippet: `const App = () => (\n  <div style={{ padding: '2rem', textAlign: 'center' }}>\n    <h1>Hello, World!</h1>\n    <p>Welcome to your new React app.</p>\n  </div>\n);`,
+        explanation: "Wraps the component in a div with some basic styling for better presentation."
+    },
+    {
+        id: 'sug-2',
+        fileId: '3',
+        type: 'diagnostic',
+        snippet: `import type { FC } from 'react';\n\nconst App: FC = () => <h1>Hello, World!</h1>;`,
+        explanation: "Adds a `FC` type for better type safety and clarity on the component's signature."
+    }
+];

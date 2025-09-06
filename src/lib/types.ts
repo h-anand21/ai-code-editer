@@ -4,17 +4,23 @@ export interface Project {
   files: FileNode[];
   ownerId: string;
   createdAt: string;
+  branch: string;
+  collaborators: PresenceUser[];
 }
 
 export type FileNodeType = 'file' | 'folder';
+
+export type Language = 'typescript' | 'html' | 'css' | 'python' | 'json' | 'markdown';
 
 export interface FileNode {
   id: string;
   name: string;
   type: FileNodeType;
+  path: string;
   children?: FileNode[];
   content?: string;
-  language?: 'typescript' | 'html' | 'css' | 'python' | 'json';
+  language?: Language;
+  lastModified: string;
 }
 
 export interface File extends FileNode {
@@ -25,4 +31,20 @@ export interface File extends FileNode {
 export interface Folder extends FileNode {
   type: 'folder';
   children: FileNode[];
+}
+
+export interface Suggestion {
+  id: string;
+  fileId: string;
+  snippet: string;
+  explanation: string;
+  type: 'suggestion' | 'diagnostic';
+}
+
+export interface PresenceUser {
+  id: string;
+  name: string;
+  avatarUrl: string;
+  status: 'active' | 'idle' | 'offline';
+  lastActive: string;
 }

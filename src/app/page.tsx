@@ -1,5 +1,5 @@
-import { MainLayout } from "@/components/app/main-layout";
+import { EditorLayout } from "@/components/Layout/EditorLayout";
 
-export default function Home() {
-  return <MainLayout />;
+export default function EditorPage() {
+  return <EditorLayout />;
 }
