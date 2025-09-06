@@ -6,6 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { X, Code } from "lucide-react";
 import { ScrollArea } from "../ui/scroll-area";
+import { cn } from "@/lib/utils";
 
 type EditorPaneProps = {
   openFiles: FileNode[];
@@ -36,6 +37,11 @@ export function EditorPane({
     );
   }
 
+  const handleCloseClick = (e: React.MouseEvent, fileId: string) => {
+    e.stopPropagation();
+    onCloseTab(fileId);
+  };
+
   return (
     <Tabs
       value={activeFileId ?? ""}
@@ -53,20 +59,12 @@ export function EditorPane({
               >
                 <span>{file.name}</span>
                 <div
-                  onClick={(e) => e.stopPropagation()}
-                  className="ml-2"
+                  role="button"
+                  aria-label={`Close ${file.name} tab`}
+                  onClick={(e) => handleCloseClick(e, file.id)}
+                  className="ml-2 p-1 rounded-full hover:bg-muted-foreground/20"
                 >
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-5 w-5 rounded-full opacity-50 group-hover:opacity-100"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onCloseTab(file.id);
-                    }}
-                  >
-                    <X className="h-3 w-3" />
-                  </Button>
+                  <X className="h-3 w-3" />
                 </div>
               </TabsTrigger>
             ))}
