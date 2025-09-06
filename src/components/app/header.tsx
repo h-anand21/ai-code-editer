@@ -29,8 +29,7 @@ export function AppHeader({ projectName }: AppHeaderProps) {
 
       <div className="flex-1 flex justify-center">
         <div className="text-center">
-            <span className="text-sm text-muted-foreground hidden md:inline">Project</span>
-            <span className="ml-2 font-semibold text-lg">{projectName}</span>
+            <span className="font-semibold text-lg">{projectName}</span>
         </div>
       </div>
 
