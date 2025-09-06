@@ -29,9 +29,9 @@ export function EditorPane({
     return (
       <div className="flex flex-1 items-center justify-center bg-background text-muted-foreground">
         <div className="text-center">
-          <Code className="mx-auto h-12 w-12" />
-          <p className="mt-4 text-sm">Select a file to begin editing</p>
-          <p className="mt-1 text-xs">or create a new file.</p>
+          <Code className="mx-auto h-20 w-20" />
+          <p className="mt-4 text-base">Select a file to begin editing</p>
+          <p className="mt-1 text-sm">or create a new file.</p>
         </div>
       </div>
     );
