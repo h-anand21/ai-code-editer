@@ -27,7 +27,7 @@ export function EditorPane({
 }: EditorPaneProps) {
   if (openFiles.length === 0) {
     return (
-      <div className="flex flex-1 items-center justify-center bg-zinc-900/50 dark:bg-black/50 text-muted-foreground">
+      <div className="flex flex-1 items-center justify-center bg-background text-muted-foreground">
         <div className="text-center">
           <Code className="mx-auto h-12 w-12" />
           <p className="mt-4 text-sm">Select a file to begin editing</p>
@@ -80,7 +80,7 @@ export function EditorPane({
           <Textarea
             value={fileContents[file.id] || ""}
             onChange={(e) => onContentChange(file.id, e.target.value)}
-            className="font-code text-base h-full w-full resize-none border-none rounded-none focus-visible:ring-0 bg-zinc-900/50 dark:bg-black/50 text-gray-200"
+            className="font-code text-base h-full w-full resize-none border-none rounded-none focus-visible:ring-0 bg-background text-gray-200"
             placeholder={`// ${file.name}`}
           />
         </TabsContent>
