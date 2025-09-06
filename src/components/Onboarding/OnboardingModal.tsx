@@ -21,13 +21,13 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { AnimatePresence, motion } from "framer-motion";
-import { FileTree, Code, Bot } from "lucide-react";
+import { FolderTree, Code, Bot } from "lucide-react";
 
 const ONBOARDING_KEY = "aethercode_onboarding_complete";
 
 const steps = [
   {
-    icon: <FileTree className="h-12 w-12 text-primary" />,
+    icon: <FolderTree className="h-12 w-12 text-primary" />,
     title: "Explore Your Files",
     description: "The file tree on the left gives you a full view of your project. Click to open, right-click for more options.",
   },
