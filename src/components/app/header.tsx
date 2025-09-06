@@ -20,17 +20,17 @@ type AppHeaderProps = {
 
 export function AppHeader({ projectName }: AppHeaderProps) {
   return (
-    <header className="flex h-14 items-center gap-4 border-b bg-card lg:h-[60px] shrink-0">
+    <header className="flex h-14 items-center gap-4 border-b bg-card lg:h-[60px] shrink-0 px-4">
       <div className="flex items-center gap-2">
          <SidebarTrigger className="lg:hidden" />
          <AetherCodeLogo className="h-6 w-6 text-primary" />
          <span className="font-semibold text-lg hidden md:inline">AetherCode</span>
       </div>
 
-      <div className="flex-1">
-        <div className="w-full">
-            <span className="text-sm text-muted-foreground hidden md:inline">Project:</span>
-            <span className="ml-2 font-medium">{projectName}</span>
+      <div className="flex-1 flex justify-center">
+        <div className="text-center">
+            <span className="text-sm text-muted-foreground hidden md:inline">Project</span>
+            <span className="ml-2 font-semibold text-lg">{projectName}</span>
         </div>
       </div>
 
