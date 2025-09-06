@@ -6,6 +6,7 @@ import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
+  SidebarHeader,
 } from "@/components/ui/sidebar";
 import {
   Collapsible,
@@ -13,13 +14,16 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import { Button } from "@/components/ui/button";
-import { Folder, File as FileIcon, FolderOpen, ChevronRight } from "lucide-react";
+import { Folder, File as FileIcon, FolderOpen, ChevronRight, FilePlus, Upload } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/tooltip";
 
 type FileTreeProps = {
   project: Project;
   onFileSelect: (file: FileNode) => void;
   activeFileId: string | null;
+  onNewFile: () => void;
+  onUploadFile: () => void;
 };
 
 const TreeNode = ({
@@ -68,9 +72,35 @@ const TreeNode = ({
   );
 };
 
-export function FileTree({ project, onFileSelect, activeFileId }: FileTreeProps) {
+export function FileTree({ project, onFileSelect, activeFileId, onNewFile, onUploadFile }: FileTreeProps) {
   return (
     <Sidebar collapsible="icon" className="border-r">
+       <SidebarHeader className="p-2 border-b">
+        <div className="flex items-center justify-end gap-2">
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button variant="ghost" size="icon" className="h-7 w-7" onClick={onNewFile}>
+                    <FilePlus className="h-4 w-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent side="right">
+                  <p>New File</p>
+                </TooltipContent>
+              </Tooltip>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button variant="ghost" size="icon" className="h-7 w-7" onClick={onUploadFile}>
+                    <Upload className="h-4 w-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent side="right">
+                  <p>Upload File</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+        </div>
+      </SidebarHeader>
       <SidebarContent className="p-2">
         <div className="flex flex-col gap-1">
           {project.files.map((node) => (
@@ -78,7 +108,7 @@ export function FileTree({ project, onFileSelect, activeFileId }: FileTreeProps)
           ))}
         </div>
       </SidebarContent>
-      <SidebarFooter className="p-4 mt-auto">
+      <SidebarFooter className="p-4 mt-auto border-t">
         <h2 className="text-lg font-semibold text-sidebar-foreground group-data-[collapsible=icon]:hidden">
           Explorer
         </h2>

@@ -10,6 +10,7 @@ import { EditorPane } from "@/components/app/editor-pane";
 import { AIPanel } from "@/components/app/ai-panel";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
+import { useToast } from "@/hooks/use-toast";
 
 function getInitialFileContents(nodes: FileNode[]): Record<string, string> {
   const contents: Record<string, string> = {};
@@ -97,6 +98,8 @@ const ResizablePanel = ({
 
 
 export function MainLayout() {
+  const { toast } = useToast();
+  const [project, setProject] = useState(mockProject);
   const [openFiles, setOpenFiles] = useState<FileNode[]>([]);
   const [activeFileId, setActiveFileId] = useState<string | null>(null);
   const [fileContents, setFileContents] = useState<Record<string, string>>(() => getInitialFileContents(mockProject.files));
@@ -133,6 +136,16 @@ export function MainLayout() {
     setFileContents((prev) => ({ ...prev, [fileId]: newContent }));
   };
 
+  const handleNewFile = () => {
+    // For now, it just shows a toast.
+    toast({ title: "New File", description: "This feature is not yet implemented." });
+  };
+  
+  const handleUploadFile = () => {
+    // For now, it just shows a toast.
+    toast({ title: "Upload File", description: "This feature is not yet implemented." });
+  };
+
   const activeFile = useMemo(() => {
     return openFiles.find(f => f.id === activeFileId);
   }, [activeFileId, openFiles]);
@@ -142,9 +155,15 @@ export function MainLayout() {
   return (
     <SidebarProvider>
       <div className="flex flex-col h-screen bg-background text-foreground overflow-hidden">
-        <AppHeader projectName={mockProject.name} />
+        <AppHeader projectName={project.name} />
         <div className="flex flex-1 overflow-hidden">
-          <FileTree project={mockProject} onFileSelect={handleFileSelect} activeFileId={activeFileId} />
+          <FileTree 
+            project={project} 
+            onFileSelect={handleFileSelect} 
+            activeFileId={activeFileId} 
+            onNewFile={handleNewFile}
+            onUploadFile={handleUploadFile}
+          />
           <main className="flex flex-1 min-w-0">
             <div className="flex-1 flex flex-col min-w-0">
               <EditorPane
