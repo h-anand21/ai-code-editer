@@ -58,7 +58,7 @@ export function AIPanel({ activeFile, activeFileContent }: AIPanelProps) {
   };
 
   return (
-    <aside className="w-96 border-l bg-card p-4 flex flex-col gap-4">
+    <aside className="w-full h-full bg-card p-4 flex flex-col gap-4 pl-6">
       <h2 className="text-lg font-semibold">AI Assistant</h2>
       <Tabs defaultValue="suggestions" className="flex-1 flex flex-col min-h-0">
         <TabsList className="grid w-full grid-cols-2">

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback, useEffect, useRef } from "react";
 import type { FileNode } from "@/lib/types";
 import { mockProject } from "@/lib/mock-data";
 import { SidebarProvider } from "@/components/ui/sidebar";
@@ -9,6 +9,8 @@ import { FileTree } from "@/components/app/file-tree";
 import { EditorPane } from "@/components/app/editor-pane";
 import { AIPanel } from "@/components/app/ai-panel";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { cn } from "@/lib/utils";
+import { PanelRight } from "lucide-react";
 
 function getInitialFileContents(nodes: FileNode[]): Record<string, string> {
   const contents: Record<string, string> = {};
@@ -25,6 +27,75 @@ function getInitialFileContents(nodes: FileNode[]): Record<string, string> {
   traverse(nodes);
   return contents;
 }
+
+const ResizablePanel = ({
+  children,
+  className,
+}: {
+  children: React.ReactNode;
+  className?: string;
+}) => {
+  const [width, setWidth] = useState(384); // Corresponds to w-96
+  const [isResizing, setIsResizing] = useState(false);
+  const panelRef = useRef<HTMLDivElement>(null);
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setIsResizing(true);
+  };
+
+  const handleMouseUp = useCallback(() => {
+    setIsResizing(false);
+  }, []);
+
+  const handleMouseMove = useCallback(
+    (e: MouseEvent) => {
+      if (isResizing && panelRef.current) {
+        const newWidth =
+          panelRef.current.parentElement!.getBoundingClientRect().right -
+          e.clientX;
+        const minWidth = 256; // w-64
+        const maxWidth = 640; // w-160
+        if (newWidth > minWidth && newWidth < maxWidth) {
+          setWidth(newWidth);
+        }
+      }
+    },
+    [isResizing]
+  );
+
+  useEffect(() => {
+    if (isResizing) {
+      window.addEventListener("mousemove", handleMouseMove);
+      window.addEventListener("mouseup", handleMouseUp);
+    } else {
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mouseup", handleMouseUp);
+    }
+
+    return () => {
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mouseup", handleMouseUp);
+    };
+  }, [isResizing, handleMouseMove, handleMouseUp]);
+
+  return (
+    <div
+      ref={panelRef}
+      className={cn("relative shrink-0", className)}
+      style={{ width: `${width}px` }}
+    >
+      <div
+        onMouseDown={handleMouseDown}
+        className="absolute top-0 left-0 h-full w-2 cursor-col-resize group flex items-center justify-center"
+      >
+        <div className="w-px h-full bg-border group-hover:bg-primary transition-colors" />
+      </div>
+      {children}
+    </div>
+  );
+};
+
 
 export function MainLayout() {
   const [openFiles, setOpenFiles] = useState<FileNode[]>([]);
@@ -87,10 +158,12 @@ export function MainLayout() {
               />
             </div>
             {!isMobile && (
-              <AIPanel
-                activeFile={activeFile}
-                activeFileContent={activeFileContent}
-              />
+              <ResizablePanel>
+                <AIPanel
+                  activeFile={activeFile}
+                  activeFileContent={activeFileContent}
+                />
+              </ResizablePanel>
             )}
           </main>
         </div>
