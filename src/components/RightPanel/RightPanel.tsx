@@ -58,7 +58,7 @@ const SuggestionCard: React.FC<{ suggestion: Suggestion }> = ({ suggestion }) =>
         <CardDescription className="text-xs pt-1">{suggestion.explanation}</CardDescription>
       </CardHeader>
       <CardContent>
-        <pre className="bg-muted/50 p-3 rounded-lg text-xs font-code overflow-x-auto">
+        <pre className="bg-muted/50 p-3 rounded-lg text-xs font-code overflow-x-auto whitespace-pre-wrap break-words">
           <code>{suggestion.snippet}</code>
         </pre>
       </CardContent>
