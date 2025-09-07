@@ -12,7 +12,7 @@ const mockFiles: FileNode[] = [
     path: '/README.md',
     type: 'file',
     language: 'markdown',
-    content: '# Welcome to Your Project!\n\nThis is a sample project structure.',
+    content: '# Welcome to Your Project!\\n\\nThis is a sample project structure.',
     lastModified: getRelativeTime(new Date(now.getTime() - 1000 * 60 * 5)),
   },
   {
@@ -28,7 +28,7 @@ const mockFiles: FileNode[] = [
         path: '/src/index.tsx',
         type: 'file',
         language: 'typescript',
-        content: `import React from 'react';\nimport ReactDOM from 'react-dom/client';\n\nconst App = () => <h1>Hello, World!</h1>;\n\nconst root = ReactDOM.createRoot(document.getElementById('root'));\nroot.render(<App />);`,
+        content: `console.log("Hello from index.tsx!");`,
         lastModified: getRelativeTime(new Date(now.getTime() - 1000 * 60 * 2)),
       },
       {
@@ -74,14 +74,14 @@ export const mockSuggestions: Suggestion[] = [
         id: 'sug-1',
         fileId: '3',
         type: 'suggestion',
-        snippet: `const App = () => (\n  <div style={{ padding: '2rem', textAlign: 'center' }}>\n    <h1>Hello, World!</h1>\n    <p>Welcome to your new React app.</p>\n  </div>\n);`,
+        snippet: `const App = () => (\\n  <div style={{ padding: '2rem', textAlign: 'center' }}>\\n    <h1>Hello, World!</h1>\\n    <p>Welcome to your new React app.</p>\\n  </div>\\n);`,
         explanation: "Wraps the component in a div with some basic styling for better presentation."
     },
     {
         id: 'sug-2',
         fileId: '3',
         type: 'diagnostic',
-        snippet: `import type { FC } from 'react';\n\nconst App: FC = () => <h1>Hello, World!</h1>;`,
+        snippet: `import type { FC } from 'react';\\n\\nconst App: FC = () => <h1>Hello, World!</h1>;`,
         explanation: "Adds a `FC` type for better type safety and clarity on the component's signature."
     }
 ];

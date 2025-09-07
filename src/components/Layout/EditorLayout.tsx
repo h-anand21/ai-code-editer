@@ -31,7 +31,7 @@ export function EditorLayout() {
   
   // Create a state to hold the content of the files.
   // Initialize with content from mock data.
-  const allFiles = project.files.flatMap(f => f.type === 'folder' ? (f.children ?? []) : f);
+  const allFiles = project.files.flatMap(f => f.type === 'folder' ? (f.children ?? []) : [f]);
   const initialFileContents = Object.fromEntries(
     allFiles.map(f => [f.id, f.content || ''])
   );
@@ -54,10 +54,10 @@ export function EditorLayout() {
         language: "typescript",
         lastModified: formatDistanceToNow(new Date(), { addSuffix: true }),
       };
-      setProject(prev => ({
-        ...prev,
-        files: [...prev.files, newFile]
-      }));
+      setProject(prev => {
+        const newFiles = [...prev.files, newFile];
+        return { ...prev, files: newFiles };
+      });
       setFileContents(prev => ({ ...prev, [newFile.id]: newFile.content || '' }));
       setActiveFileId(newFile.id);
     }
@@ -86,14 +86,16 @@ export function EditorLayout() {
           // For now, we'll just use a sandboxed Function constructor.
           const capturedLogs: string[] = [];
           const originalLog = console.log;
-          console.log = (...args) => {
+          const customConsole = {
+            log: (...args: any[]) => {
               capturedLogs.push(args.map(arg => typeof arg === 'string' ? arg : JSON.stringify(arg)).join(' '));
+            }
           };
           
           const func = new Function('console', activeFileWithContent.content || '');
-          func({ log: console.log });
+          func(customConsole);
           
-          console.log = originalLog;
+          console.log = originalLog; // Restore original console.log
           setConsoleOutput(prev => [...prev, ...capturedLogs, `✅ Finished running ${activeFileWithContent.name}`]);
 
       } else {
