@@ -98,42 +98,42 @@ export function EditorLayout() {
 
   const handleRunCode = () => {
     if (!activeFileWithContent) {
-        setConsoleOutput(['Error: No active file to run.']);
-        return;
+      setConsoleOutput(['Error: No active file to run.']);
+      return;
     }
 
-    const newOutput: string[] = [];
-    newOutput.push(`> Running ${activeFileWithContent.name}...`);
+    const logs: string[] = [];
+    const customConsole = {
+      log: (...args: any[]) => {
+        const newMessages = args.map(arg =>
+          typeof arg === 'object' ? JSON.stringify(arg, null, 2) : String(arg)
+        );
+        logs.push(...newMessages);
+      },
+    };
+
+    let newOutput = [`> Running ${activeFileWithContent.name}...`];
 
     try {
-        if (
-            activeFileWithContent.language === 'typescript' ||
-            activeFileWithContent.language === 'json'
-        ) {
-            const customConsole = {
-                log: (...args: any[]) => {
-                    const newMessages = args.map(arg =>
-                        typeof arg === 'object' ? JSON.stringify(arg, null, 2) : String(arg)
-                    );
-                    newOutput.push(...newMessages);
-                },
-            };
-            
-            // This is a sandboxed execution using Function constructor.
-            // It's not perfectly secure but sufficient for this prototype.
-            const func = new Function('console', activeFileWithContent.content || '');
-            func(customConsole);
-
-        } else {
-            newOutput.push(`Cannot run file type: ${activeFileWithContent.language}`);
-        }
+      if (
+        activeFileWithContent.language === 'typescript' ||
+        activeFileWithContent.language === 'json'
+      ) {
+        // This is a sandboxed execution using Function constructor.
+        // It's not perfectly secure but sufficient for this prototype.
+        const func = new Function('console', activeFileWithContent.content || '');
+        func(customConsole);
+        newOutput = [...newOutput, ...logs];
+      } else {
+        newOutput.push(`Cannot run file type: ${activeFileWithContent.language}`);
+      }
     } catch (error: any) {
-        newOutput.push(`\n❌ Error: ${error.message}`);
+      newOutput.push(`\n❌ Error: ${error.message}`);
     }
 
     newOutput.push(`\n✅ Finished running ${activeFileWithContent.name}`);
     setConsoleOutput(newOutput);
-};
+  };
 
   const handleRequestAISuggest = async (fileId: string, cursorContext: string) => {
     const file = allFiles.find(f => f.id === fileId);
