@@ -39,6 +39,7 @@ import { Separator } from "../ui/separator";
 interface RightPanelProps {
   suggestions: Suggestion[];
   activeFile: FileNode | undefined;
+  consoleOutput: string[];
 }
 
 const SuggestionCard: React.FC<{ suggestion: Suggestion }> = ({ suggestion }) => (
@@ -77,7 +78,7 @@ const SuggestionCard: React.FC<{ suggestion: Suggestion }> = ({ suggestion }) =>
   </motion.div>
 );
 
-export const RightPanel: React.FC<RightPanelProps> = ({ suggestions, activeFile }) => {
+export const RightPanel: React.FC<RightPanelProps> = ({ suggestions, activeFile, consoleOutput }) => {
   const isWebViewable = activeFile?.language === 'html';
   
   return (
@@ -132,9 +133,13 @@ export const RightPanel: React.FC<RightPanelProps> = ({ suggestions, activeFile 
             </TabsContent>
 
             <TabsContent value="console" className="m-0 h-full">
-                 <div className="p-4 text-sm text-muted-foreground">
-                    Console output will appear here.
-                 </div>
+                 <ScrollArea className="h-full">
+                    <div className="p-4 text-sm font-mono text-muted-foreground space-y-1">
+                        {consoleOutput.map((line, index) => (
+                            <p key={index} className="whitespace-pre-wrap break-words">{line}</p>
+                        ))}
+                    </div>
+                </ScrollArea>
             </TabsContent>
         </div>
 

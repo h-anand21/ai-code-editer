@@ -50,6 +50,7 @@ import { AetherCodeLogo } from "../icons";
 
 type TopBarProps = {
   project: Project;
+  onRun: () => void;
 };
 
 const AutosaveIndicator: React.FC = () => {
@@ -136,7 +137,7 @@ const ThemeToggle = () => {
     )
 }
 
-export const TopBar: React.FC<TopBarProps> = ({ project }) => {
+export const TopBar: React.FC<TopBarProps> = ({ project, onRun }) => {
   return (
     <header className="flex h-14 items-center gap-4 border-b bg-card px-4 shrink-0">
       <div className="flex items-center gap-2 mr-auto">
@@ -148,7 +149,7 @@ export const TopBar: React.FC<TopBarProps> = ({ project }) => {
         <BranchSelector currentBranch={project.branch} />
         <AutosaveIndicator />
         <PresenceBar users={project.collaborators} />
-        <Button variant="secondary" size="sm">
+        <Button variant="secondary" size="sm" onClick={onRun}>
           <Play className="w-4 h-4 mr-2" /> Run
         </Button>
         <Button variant="default" size="sm">

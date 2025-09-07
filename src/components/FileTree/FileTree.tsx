@@ -48,6 +48,7 @@ interface FileTreeProps {
   project: Project;
   activeFileId: string | null;
   onFileSelect: (id: string) => void;
+  onNewFile: () => void;
 }
 
 const LanguageBadge: React.FC<{ language?: Language }> = ({ language }) => {
@@ -154,16 +155,15 @@ export const FileTree: React.FC<FileTreeProps> = ({
   project,
   activeFileId,
   onFileSelect,
+  onNewFile,
 }) => {
-  // TODO: Implement file creation logic
-  const handleNewFile = () => alert("New file functionality to be implemented.");
-
+  
   return (
     <Card className="h-full flex flex-col rounded-none border-r w-[320px]">
       <CardHeader className="p-2 border-b">
         <div className="flex justify-between items-center">
              <CardTitle className="text-base px-2">Explorer</CardTitle>
-             <Button variant="ghost" size="icon" onClick={handleNewFile} aria-label="New File">
+             <Button variant="ghost" size="icon" onClick={onNewFile} aria-label="New File">
                 <FilePlus2 className="w-4 h-4" />
              </Button>
         </div>

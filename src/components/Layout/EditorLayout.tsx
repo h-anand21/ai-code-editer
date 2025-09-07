@@ -20,24 +20,100 @@ import { Sidebar, SidebarTrigger, SidebarContent } from "@/components/ui/sidebar
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "../ui/button";
 import { PanelLeft, PanelRight } from "lucide-react";
+import type { FileNode, Project } from "@/types/ui";
+import { formatDistanceToNow } from "date-fns";
 
 export function EditorLayout() {
   const isMobile = useIsMobile();
+  const [project, setProject] = React.useState<Project>(mockProject);
   const [activeFileId, setActiveFileId] = React.useState<string | null>("3");
+  const [consoleOutput, setConsoleOutput] = React.useState<string[]>([]);
+  
+  // Create a state to hold the content of the files.
+  // Initialize with content from mock data.
+  const allFiles = project.files.flatMap(f => f.type === 'folder' ? (f.children ?? []) : f);
+  const initialFileContents = Object.fromEntries(
+    allFiles.map(f => [f.id, f.content || ''])
+  );
+  const [fileContents, setFileContents] = React.useState<Record<string, string>>(initialFileContents);
 
-  const activeFile = mockProject.files
-    .flatMap(f => f.type === 'folder' ? f.children : f)
-    .find(f => f?.id === activeFileId);
+
+  const activeFile = allFiles.find(f => f?.id === activeFileId);
+  const activeFileWithContent = activeFile ? { ...activeFile, content: fileContents[activeFile.id] } : undefined;
+
+
+  const handleNewFile = () => {
+    const fileName = prompt("Enter new file name:");
+    if (fileName) {
+      const newFile: FileNode = {
+        id: `file-${Date.now()}`,
+        name: fileName,
+        path: `/${fileName}`,
+        type: "file",
+        content: `// ${fileName}`,
+        language: "typescript",
+        lastModified: formatDistanceToNow(new Date(), { addSuffix: true }),
+      };
+      setProject(prev => ({
+        ...prev,
+        files: [...prev.files, newFile]
+      }));
+      setFileContents(prev => ({ ...prev, [newFile.id]: newFile.content || '' }));
+      setActiveFileId(newFile.id);
+    }
+  };
+
+  const handleContentChange = (fileId: string, newContent: string) => {
+    setFileContents(prev => ({
+      ...prev,
+      [fileId]: newContent,
+    }));
+  };
+
+  const handleRunCode = () => {
+    if (!activeFileWithContent) {
+      setConsoleOutput(prev => [...prev, "Error: No active file to run."]);
+      return;
+    }
+
+    setConsoleOutput(prev => [...prev, `> Running ${activeFileWithContent.name}...`]);
+
+    // Super simple "runner" for demo purposes.
+    // WARNING: Using Function constructor is not safe for real applications.
+    try {
+      if (activeFileWithContent.language === 'typescript' || activeFileWithContent.language === 'json') {
+          // A real implementation would transpile TSX/TS first.
+          // For now, we'll just use a sandboxed Function constructor.
+          const capturedLogs: string[] = [];
+          const originalLog = console.log;
+          console.log = (...args) => {
+              capturedLogs.push(args.map(arg => typeof arg === 'string' ? arg : JSON.stringify(arg)).join(' '));
+          };
+          
+          const func = new Function('console', activeFileWithContent.content || '');
+          func({ log: console.log });
+          
+          console.log = originalLog;
+          setConsoleOutput(prev => [...prev, ...capturedLogs, `✅ Finished running ${activeFileWithContent.name}`]);
+
+      } else {
+          setConsoleOutput(prev => [...prev, `Cannot run file type: ${activeFileWithContent.language}`]);
+      }
+    } catch (error: any) {
+      setConsoleOutput(prev => [...prev, `Error: ${error.message}`]);
+    }
+  };
+
 
   if (isMobile) {
     return (
       <div className="flex flex-col h-screen">
-        <TopBar project={mockProject} />
+        <TopBar project={project} onRun={handleRunCode} />
         <div className="flex-1 overflow-hidden">
           <main className="h-full flex flex-col">
             <EditorShell
-              file={activeFile}
-              onContentChange={(id, content) => console.log({ id, content })}
+              file={activeFileWithContent}
+              onContentChange={handleContentChange}
               onSave={(id) => console.log(`Save ${id}`)}
               onRequestAISuggest={(id, context) => console.log(`AI Suggest for ${id} at ${context}`)}
             />
@@ -52,9 +128,10 @@ export function EditorLayout() {
             </SheetTrigger>
             <SheetContent side="left" className="p-0 w-80">
               <FileTree
-                project={mockProject}
+                project={project}
                 activeFileId={activeFileId}
                 onFileSelect={(id) => setActiveFileId(id)}
+                onNewFile={handleNewFile}
               />
             </SheetContent>
           </Sheet>
@@ -68,6 +145,7 @@ export function EditorLayout() {
                <RightPanel
                     suggestions={mockSuggestions.filter(s => s.fileId === activeFileId)}
                     activeFile={activeFile}
+                    consoleOutput={consoleOutput}
                 />
             </SheetContent>
           </Sheet>
@@ -79,7 +157,7 @@ export function EditorLayout() {
 
   return (
     <div className="flex flex-col h-screen bg-background">
-      <TopBar project={mockProject} />
+      <TopBar project={project} onRun={handleRunCode}/>
       <div className="flex-1 grid grid-cols-[auto_1fr_auto] overflow-hidden">
         {/* Left Panel: File Tree */}
         <motion.div
@@ -88,17 +166,18 @@ export function EditorLayout() {
           transition={{ duration: 0.3, ease: "easeInOut" }}
         >
           <FileTree
-            project={mockProject}
+            project={project}
             activeFileId={activeFileId}
             onFileSelect={(id) => setActiveFileId(id)}
+            onNewFile={handleNewFile}
           />
         </motion.div>
 
         {/* Center Panel: Editor */}
         <main className="flex-1 flex flex-col overflow-hidden">
           <EditorShell
-            file={activeFile}
-            onContentChange={(id, content) => console.log({ id, content })}
+            file={activeFileWithContent}
+            onContentChange={handleContentChange}
             onSave={(id) => console.log(`Save ${id}`)}
             onRequestAISuggest={(id, context) => console.log(`AI Suggest for ${id} at ${context}`)}
           />
@@ -122,6 +201,7 @@ export function EditorLayout() {
                         <RightPanel
                             suggestions={mockSuggestions.filter(s => s.fileId === activeFileId)}
                             activeFile={activeFile}
+                            consoleOutput={consoleOutput}
                         />
                     </motion.div>
                 )}
