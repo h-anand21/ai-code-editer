@@ -106,7 +106,7 @@ export const EditorShell: React.FC<EditorShellProps> = ({
           >
             {/* TODO: Replace this with the Monaco Editor instance */}
             <Textarea
-              value={f.content}
+              value={f.content || ''}
               onChange={(e) => onContentChange(f.id, e.target.value)}
               className="h-full w-full bg-transparent border-0 rounded-none resize-none font-code text-base p-4 focus-visible:ring-0"
               aria-label={`${f.name} content`}

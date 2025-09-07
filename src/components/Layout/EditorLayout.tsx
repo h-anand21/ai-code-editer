@@ -33,16 +33,20 @@ export function EditorLayout() {
     return files.flatMap(f => (f.type === 'folder' && f.children) ? [f, ...getAllFiles(f.children)] : [f]);
   }
 
-  const allFiles = getAllFiles(project.files);
+  const [allFiles, setAllFiles] = React.useState<FileNode[]>(() => getAllFiles(project.files));
 
-  const initialFileContents = Object.fromEntries(
+  const initialFileContents = React.useMemo(() => Object.fromEntries(
     allFiles.filter(f => f.type === 'file').map(f => [f.id, f.content || ''])
-  );
+  ), [allFiles]);
+
   const [fileContents, setFileContents] = React.useState<Record<string, string>>(initialFileContents);
 
+  React.useEffect(() => {
+    setFileContents(initialFileContents);
+  }, [initialFileContents]);
 
   const activeFile = allFiles.find(f => f?.id === activeFileId);
-  const activeFileWithContent = activeFile ? { ...activeFile, content: fileContents[activeFile.id] } : undefined;
+  const activeFileWithContent = activeFile ? { ...activeFile, content: fileContents[activeFile.id] ?? '' } : undefined;
 
 
   const handleNewFile = () => {
@@ -57,10 +61,13 @@ export function EditorLayout() {
         language: "typescript",
         lastModified: formatDistanceToNow(new Date(), { addSuffix: true }),
       };
-      setProject(prev => {
-        const newFiles = [...prev.files, newFile];
-        return { ...prev, files: newFiles };
-      });
+      
+      const updatedFiles = [...allFiles, newFile];
+      setAllFiles(updatedFiles);
+      
+      const newProjectFiles = [...project.files, newFile];
+      setProject(prev => ({ ...prev, files: newProjectFiles }));
+
       setFileContents(prev => ({ ...prev, [newFile.id]: newFile.content || '' }));
       setActiveFileId(newFile.id);
     }
