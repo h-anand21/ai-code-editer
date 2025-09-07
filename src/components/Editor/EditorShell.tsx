@@ -36,9 +36,12 @@ export const EditorShell: React.FC<EditorShellProps> = ({
 
   useEffect(() => {
     if (file) {
-      if (!openFiles.some(f => f.id === file.id)) {
-        setOpenFiles(prev => [...prev, file]);
-      }
+      setOpenFiles(prevOpenFiles => {
+        if (prevOpenFiles.some(f => f.id === file.id)) {
+          return prevOpenFiles;
+        }
+        return [...prevOpenFiles, file];
+      });
       setActiveTab(file.id);
     }
   }, [file]);
@@ -46,13 +49,17 @@ export const EditorShell: React.FC<EditorShellProps> = ({
   const handleCloseTab = (e: React.MouseEvent, fileId: string) => {
     e.stopPropagation();
     e.preventDefault();
-    setOpenFiles(prev => prev.filter(f => f.id !== fileId));
+
+    let newActiveTab: string | null = activeTab;
     if (activeTab === fileId) {
-        // If there are other files, switch to the last one, otherwise clear.
         const remainingFiles = openFiles.filter(f => f.id !== fileId);
-        setActiveTab(remainingFiles.length > 0 ? remainingFiles[remainingFiles.length - 1].id : null);
+        newActiveTab = remainingFiles.length > 0 ? remainingFiles[remainingFiles.length - 1].id : null;
     }
+    
+    setOpenFiles(prev => prev.filter(f => f.id !== fileId));
+    setActiveTab(newActiveTab);
   };
+
 
   if (openFiles.length === 0) {
     return (
