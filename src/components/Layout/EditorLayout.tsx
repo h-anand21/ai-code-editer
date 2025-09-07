@@ -21,7 +21,7 @@ import { PanelLeft, PanelRight } from "lucide-react";
 import type { FileNode, Project, Suggestion, Diagnostic } from "@/types/ui";
 import { formatDistanceToNow } from "date-fns";
 import { getCodeSuggestion, getCodeDiagnostics } from "@/lib/actions";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 
 export function EditorLayout() {
   const isMobile = useIsMobile();
@@ -98,42 +98,40 @@ export function EditorLayout() {
 
   const handleRunCode = () => {
     if (!activeFileWithContent) {
-      setConsoleOutput(['Error: No active file to run.']);
-      return;
+        setConsoleOutput(prev => [...prev, 'Error: No active file to run.']);
+        return;
     }
 
     const output: string[] = [];
     output.push(`> Running ${activeFileWithContent.name}...`);
 
     try {
-      if (
-        activeFileWithContent.language === 'typescript' ||
-        activeFileWithContent.language === 'json'
-      ) {
-        const customConsole = {
-          log: (...args: any[]) => {
-            output.push(
-              ...args.map(arg =>
-                typeof arg === 'object' ? JSON.stringify(arg, null, 2) : String(arg)
-              )
-            );
-          },
-        };
-        
-        // This is a sandboxed execution of the user's code.
-        const func = new Function('console', activeFileWithContent.content || '');
-        func(customConsole);
-        
-        output.push(`\n✅ Finished running ${activeFileWithContent.name}`);
-      } else {
-        output.push(`Cannot run file type: ${activeFileWithContent.language}`);
-      }
+        if (
+            activeFileWithContent.language === 'typescript' ||
+            activeFileWithContent.language === 'json'
+        ) {
+            const customConsole = {
+                log: (...args: any[]) => {
+                    const newMessages = args.map(arg =>
+                        typeof arg === 'object' ? JSON.stringify(arg, null, 2) : String(arg)
+                    );
+                    output.push(...newMessages);
+                },
+            };
+
+            const func = new Function('console', activeFileWithContent.content || '');
+            func(customConsole);
+
+            output.push(`\n✅ Finished running ${activeFileWithContent.name}`);
+        } else {
+            output.push(`Cannot run file type: ${activeFileWithContent.language}`);
+        }
     } catch (error: any) {
-      output.push(`\n❌ Error: ${error.message}`);
+        output.push(`\n❌ Error: ${error.message}`);
     }
-    
+
     setConsoleOutput(output);
-  };
+};
 
   const handleRequestAISuggest = async (fileId: string, cursorContext: string) => {
     const file = allFiles.find(f => f.id === fileId);
