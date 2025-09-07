@@ -98,21 +98,18 @@ export function EditorLayout() {
 
   const handleRunCode = () => {
     if (!activeFileWithContent) {
-      setConsoleOutput(['Error: No active file to run.']);
+      setConsoleOutput(prev => [...prev, 'Error: No active file to run.']);
       return;
     }
 
     const initialMessage = `> Running ${activeFileWithContent.name}...`;
-    setConsoleOutput([initialMessage]);
+    const finalOutput = [initialMessage];
 
-    // Using a try-catch block to handle syntax errors in user code.
     try {
       if (
         activeFileWithContent.language === 'typescript' ||
         activeFileWithContent.language === 'json'
       ) {
-        // A real implementation would transpile TSX/TS first.
-        // For now, we'll just use a sandboxed Function constructor.
         const capturedLogs: string[] = [];
         const customConsole = {
           log: (...args: any[]) => {
@@ -128,23 +125,20 @@ export function EditorLayout() {
           },
         };
 
+        // This is a sandboxed execution of the user's code.
         const func = new Function('console', activeFileWithContent.content || '');
         func(customConsole);
+        
+        finalOutput.push(...capturedLogs);
+        finalOutput.push(`\n✅ Finished running ${activeFileWithContent.name}`);
 
-        setConsoleOutput([
-            initialMessage,
-            ...capturedLogs,
-            `\n✅ Finished running ${activeFileWithContent.name}`,
-        ]);
       } else {
-        setConsoleOutput([
-          initialMessage,
-          `Cannot run file type: ${activeFileWithContent.language}`,
-        ]);
+        finalOutput.push(`Cannot run file type: ${activeFileWithContent.language}`);
       }
     } catch (error: any) {
-      setConsoleOutput([initialMessage, `\n❌ Error: ${error.message}`]);
+      finalOutput.push(`\n❌ Error: ${error.message}`);
     }
+    setConsoleOutput(finalOutput);
   };
 
   const handleRequestAISuggest = async (fileId: string, cursorContext: string) => {
