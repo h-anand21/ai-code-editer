@@ -103,52 +103,53 @@ export function EditorLayout() {
 
   const handleRunCode = () => {
     if (!activeFileWithContent) {
-        setConsoleOutput(prev => [...prev, 'Error: No active file to run.']);
-        return;
+      setConsoleOutput(['Error: No active file to run.']);
+      return;
     }
 
-    setConsoleOutput([`> Running ${activeFileWithContent.name}...`]);
+    const initialMessage = `> Running ${activeFileWithContent.name}...`;
+    setConsoleOutput([initialMessage]);
 
     // Super simple "runner" for demo purposes.
     // WARNING: Using Function constructor is not safe for real applications.
     try {
-        if (
-            activeFileWithContent.language === 'typescript' ||
-            activeFileWithContent.language === 'json'
-        ) {
-            // A real implementation would transpile TSX/TS first.
-            // For now, we'll just use a sandboxed Function constructor.
-            const capturedLogs: string[] = [];
-            const customConsole = {
-                log: (...args: any[]) => {
-                    capturedLogs.push(
-                        args
-                            .map(arg =>
-                                typeof arg === 'object'
-                                    ? JSON.stringify(arg, null, 2)
-                                    : String(arg)
-                            )
-                            .join(' ')
-                    );
-                },
-            };
+      if (
+        activeFileWithContent.language === 'typescript' ||
+        activeFileWithContent.language === 'json'
+      ) {
+        // A real implementation would transpile TSX/TS first.
+        // For now, we'll just use a sandboxed Function constructor.
+        const capturedLogs: string[] = [];
+        const customConsole = {
+          log: (...args: any[]) => {
+            capturedLogs.push(
+              args
+                .map(arg =>
+                  typeof arg === 'object'
+                    ? JSON.stringify(arg, null, 2)
+                    : String(arg)
+                )
+                .join(' ')
+            );
+          },
+        };
 
-            const func = new Function('console', activeFileWithContent.content || '');
-            func(customConsole);
+        const func = new Function('console', activeFileWithContent.content || '');
+        func(customConsole);
 
-            setConsoleOutput(prev => [
-                ...prev,
-                ...capturedLogs,
-                `\n✅ Finished running ${activeFileWithContent.name}`,
-            ]);
-        } else {
-            setConsoleOutput(prev => [
-                ...prev,
-                `Cannot run file type: ${activeFileWithContent.language}`,
-            ]);
-        }
+        setConsoleOutput(prev => [
+            initialMessage,
+            ...capturedLogs,
+            `\n✅ Finished running ${activeFileWithContent.name}`,
+        ]);
+      } else {
+        setConsoleOutput(prev => [
+          ...prev,
+          `Cannot run file type: ${activeFileWithContent.language}`,
+        ]);
+      }
     } catch (error: any) {
-        setConsoleOutput(prev => [...prev, `\n❌ Error: ${error.message}`]);
+      setConsoleOutput(prev => [...prev, `\n❌ Error: ${error.message}`]);
     }
   };
 
