@@ -98,12 +98,12 @@ export function EditorLayout() {
 
   const handleRunCode = () => {
     if (!activeFileWithContent) {
-        setConsoleOutput(prev => [...prev, 'Error: No active file to run.']);
+        setConsoleOutput(['Error: No active file to run.']);
         return;
     }
 
-    const output: string[] = [];
-    output.push(`> Running ${activeFileWithContent.name}...`);
+    const newOutput: string[] = [];
+    newOutput.push(`> Running ${activeFileWithContent.name}...`);
 
     try {
         if (
@@ -115,22 +115,24 @@ export function EditorLayout() {
                     const newMessages = args.map(arg =>
                         typeof arg === 'object' ? JSON.stringify(arg, null, 2) : String(arg)
                     );
-                    output.push(...newMessages);
+                    newOutput.push(...newMessages);
                 },
             };
-
+            
+            // This is a sandboxed execution using Function constructor.
+            // It's not perfectly secure but sufficient for this prototype.
             const func = new Function('console', activeFileWithContent.content || '');
             func(customConsole);
 
-            output.push(`\n✅ Finished running ${activeFileWithContent.name}`);
         } else {
-            output.push(`Cannot run file type: ${activeFileWithContent.language}`);
+            newOutput.push(`Cannot run file type: ${activeFileWithContent.language}`);
         }
     } catch (error: any) {
-        output.push(`\n❌ Error: ${error.message}`);
+        newOutput.push(`\n❌ Error: ${error.message}`);
     }
 
-    setConsoleOutput(output);
+    newOutput.push(`\n✅ Finished running ${activeFileWithContent.name}`);
+    setConsoleOutput(newOutput);
 };
 
   const handleRequestAISuggest = async (fileId: string, cursorContext: string) => {
