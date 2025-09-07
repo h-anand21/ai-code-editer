@@ -41,7 +41,7 @@ export const EditorShell: React.FC<EditorShellProps> = ({
     if (file) {
         setActiveTab(file.id);
     }
-  }, [file]);
+  }, [file, openFiles]);
 
   const handleCloseTab = (e: React.MouseEvent, fileId: string) => {
     e.stopPropagation();
