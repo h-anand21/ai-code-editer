@@ -207,9 +207,16 @@ export const RightPanel: React.FC<RightPanelProps> = ({ suggestions, diagnostics
             <TabsContent value="console" className="m-0 h-full">
                  <ScrollArea className="h-full">
                     <div className="p-4 text-sm font-mono text-muted-foreground space-y-1">
-                        {consoleOutput.map((line, index) => (
-                            <p key={index} className="whitespace-pre-wrap break-words">{line}</p>
-                        ))}
+                        {consoleOutput.length > 0 ? (
+                          consoleOutput.map((line, index) => (
+                              <p key={index} className="whitespace-pre-wrap break-words">{line}</p>
+                          ))
+                        ) : (
+                          <div className="text-center text-muted-foreground mt-8">
+                            <Terminal className="w-10 h-10 mx-auto mb-2" />
+                            <p>Click "Run" to execute the active file.</p>
+                          </div>
+                        )}
                     </div>
                 </ScrollArea>
             </TabsContent>

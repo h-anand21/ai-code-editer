@@ -95,7 +95,7 @@ export function EditorLayout() {
       return;
     }
 
-    setConsoleOutput(prev => [...prev, `> Running ${activeFileWithContent.name}...`]);
+    setConsoleOutput(prev => [`> Running ${activeFileWithContent.name}...`]);
 
     // Super simple "runner" for demo purposes.
     // WARNING: Using Function constructor is not safe for real applications.
@@ -127,7 +127,7 @@ export function EditorLayout() {
     const file = allFiles.find(f => f.id === fileId);
     if (!file || file.type !== 'file') return;
 
-    const content = fileContents[fileId] || file.content || '';
+    const content = fileContents[fileId] ?? file.content ?? '';
     
     toast({ title: 'AI Suggestion', description: 'Generating AI suggestion...' });
     const result = await getCodeSuggestion({
