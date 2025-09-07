@@ -99,7 +99,7 @@ export const RightPanel: React.FC<RightPanelProps> = ({ suggestions, activeFile,
             <TabsContent value="suggestions" className="m-0 h-full">
               <ScrollArea className="h-full">
                 <div className="p-4 space-y-4">
-                  {suggestions.filter(s => s.type === 'suggestion').map(s => (
+                  {suggestions.map(s => (
                     <SuggestionCard key={s.id} suggestion={s} />
                   ))}
                 </div>
@@ -109,9 +109,7 @@ export const RightPanel: React.FC<RightPanelProps> = ({ suggestions, activeFile,
             <TabsContent value="diagnostics" className="m-0 h-full">
               <ScrollArea className="h-full">
                 <div className="p-4 space-y-4">
-                  {suggestions.filter(s => s.type === 'diagnostic').map(s => (
-                    <SuggestionCard key={s.id} suggestion={s} />
-                  ))}
+                  {/* For future diagnostics implementation */}
                 </div>
               </ScrollArea>
             </TabsContent>
