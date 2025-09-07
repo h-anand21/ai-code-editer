@@ -37,26 +37,41 @@ export const EditorShell: React.FC<EditorShellProps> = ({
   useEffect(() => {
     if (file) {
       setOpenFiles(prevOpenFiles => {
+        // If file is already open, update its content
         if (prevOpenFiles.some(f => f.id === file.id)) {
-          return prevOpenFiles;
+          return prevOpenFiles.map(f => f.id === file.id ? file : f);
         }
+        // Otherwise, add it to the list
         return [...prevOpenFiles, file];
       });
       setActiveTab(file.id);
     }
   }, [file]);
 
+  const handleLocalContentChange = (fileId: string, newContent: string) => {
+    // Update parent state
+    onContentChange(fileId, newContent);
+    // Update local state for immediate feedback in textarea
+    setOpenFiles(prev => prev.map(f => f.id === fileId ? { ...f, content: newContent } : f));
+  };
+
   const handleCloseTab = (e: React.MouseEvent, fileId: string) => {
     e.stopPropagation();
     e.preventDefault();
 
     let newActiveTab: string | null = activeTab;
+    const closedTabIndex = openFiles.findIndex(f => f.id === fileId);
+    const remainingFiles = openFiles.filter(f => f.id !== fileId);
+
     if (activeTab === fileId) {
-        const remainingFiles = openFiles.filter(f => f.id !== fileId);
-        newActiveTab = remainingFiles.length > 0 ? remainingFiles[remainingFiles.length - 1].id : null;
+        if (remainingFiles.length > 0) {
+            newActiveTab = remainingFiles[Math.max(0, closedTabIndex -1)].id;
+        } else {
+            newActiveTab = null;
+        }
     }
     
-    setOpenFiles(prev => prev.filter(f => f.id !== fileId));
+    setOpenFiles(remainingFiles);
     setActiveTab(newActiveTab);
   };
 
@@ -114,7 +129,7 @@ export const EditorShell: React.FC<EditorShellProps> = ({
             {/* TODO: Replace this with the Monaco Editor instance */}
             <Textarea
               value={f.content || ''}
-              onChange={(e) => onContentChange(f.id, e.target.value)}
+              onChange={(e) => handleLocalContentChange(f.id, e.target.value)}
               className="h-full w-full bg-transparent border-0 rounded-none resize-none font-code text-base p-4 focus-visible:ring-0"
               aria-label={`${f.name} content`}
             />
