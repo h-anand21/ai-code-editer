@@ -39,6 +39,27 @@ const mockFiles: FileNode[] = [
         lastModified: getRelativeTime(new Date(now.getTime() - 1000 * 60 * 8)),
         children: [],
       },
+      {
+        id: '6',
+        name: 'preview.html',
+        path: '/src/preview.html',
+        type: 'file',
+        language: 'html',
+        content: `<!DOCTYPE html>
+<html>
+<head>
+  <title>AetherCode Preview</title>
+  <style>
+    body { font-family: sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; background-color: #f0f0f0; color: #333; }
+    h1 { font-size: 2rem; color: #007acc; }
+  </style>
+</head>
+<body>
+  <h1>Hello from AetherCode!</h1>
+</body>
+</html>`,
+        lastModified: getRelativeTime(new Date(now.getTime() - 1000 * 60 * 1)),
+      }
     ],
   },
   {

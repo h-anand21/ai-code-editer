@@ -29,11 +29,14 @@ export function EditorLayout() {
   const [activeFileId, setActiveFileId] = React.useState<string | null>("3");
   const [consoleOutput, setConsoleOutput] = React.useState<string[]>([]);
   
-  // Create a state to hold the content of the files.
-  // Initialize with content from mock data.
-  const allFiles = project.files.flatMap(f => f.type === 'folder' ? (f.children ?? []) : [f]);
+  const getAllFiles = (files: FileNode[]): FileNode[] => {
+    return files.flatMap(f => (f.type === 'folder' && f.children) ? [f, ...getAllFiles(f.children)] : [f]);
+  }
+
+  const allFiles = getAllFiles(project.files);
+
   const initialFileContents = Object.fromEntries(
-    allFiles.map(f => [f.id, f.content || ''])
+    allFiles.filter(f => f.type === 'file').map(f => [f.id, f.content || ''])
   );
   const [fileContents, setFileContents] = React.useState<Record<string, string>>(initialFileContents);
 
@@ -146,7 +149,7 @@ export function EditorLayout() {
             <SheetContent side="right" className="p-0 w-80">
                <RightPanel
                     suggestions={mockSuggestions.filter(s => s.fileId === activeFileId)}
-                    activeFile={activeFile}
+                    activeFile={activeFileWithContent}
                     consoleOutput={consoleOutput}
                 />
             </SheetContent>
@@ -202,7 +205,7 @@ export function EditorLayout() {
                     >
                         <RightPanel
                             suggestions={mockSuggestions.filter(s => s.fileId === activeFileId)}
-                            activeFile={activeFile}
+                            activeFile={activeFileWithContent}
                             consoleOutput={consoleOutput}
                         />
                     </motion.div>
