@@ -15,7 +15,7 @@ import { TopBar } from "../TopBar/TopBar";
 import { mockProject } from "@/lib/mock-data";
 import { OnboardingModal } from "../Onboarding/OnboardingModal";
 import { motion, AnimatePresence } from "framer-motion";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "../ui/button";
 import { PanelLeft, PanelRight } from "lucide-react";
 import type { FileNode, Project, Suggestion, Diagnostic } from "@/types/ui";
@@ -98,50 +98,48 @@ export function EditorLayout() {
 
   const handleRunCode = () => {
     if (!activeFileWithContent) {
-      setConsoleOutput(prev => [...prev, 'Error: No active file to run.']);
-      return;
+        setConsoleOutput(prev => [...prev, 'Error: No active file to run.']);
+        return;
     }
 
     const logs: string[] = [];
     const customConsole = {
-      log: (...args: any[]) => {
-        const newMessages = args.map(arg =>
-          typeof arg === 'object' ? JSON.stringify(arg, null, 2) : String(arg)
-        );
-        logs.push(...newMessages);
-      },
-       error: (...args: any[]) => {
-        const newMessages = args.map(arg =>
-          typeof arg === 'object' ? JSON.stringify(arg, null, 2) : String(arg)
-        );
-        logs.push('❌ Error: ' + newMessages.join(' '));
-      },
+        log: (...args: any[]) => {
+            const newMessages = args.map(arg =>
+                typeof arg === 'object' ? JSON.stringify(arg, null, 2) : String(arg)
+            );
+            logs.push(...newMessages);
+        },
+        error: (...args: any[]) => {
+            const newMessages = args.map(arg =>
+                typeof arg === 'object' ? JSON.stringify(arg, null, 2) : String(arg)
+            );
+            logs.push('❌ Error: ' + newMessages.join(' '));
+        },
     };
 
     const initialMessage = `> Running ${activeFileWithContent.name}...`;
     setConsoleOutput([initialMessage]);
 
     try {
-      if (
-        activeFileWithContent.language === 'typescript' ||
-        activeFileWithContent.language === 'javascript' ||
-        activeFileWithContent.language === 'json'
-      ) {
-        // This is a sandboxed execution using Function constructor.
-        // It's not perfectly secure but sufficient for this prototype.
-        const func = new Function('console', activeFileWithContent.content || '');
-        func(customConsole);
-        
-      } else {
-        logs.push(`Cannot run file type: ${activeFileWithContent.language}`);
-      }
+        if (
+            activeFileWithContent.language === 'typescript' ||
+            activeFileWithContent.language === 'javascript' || // Added javascript support
+            activeFileWithContent.language === 'json'
+        ) {
+            const func = new Function('console', activeFileWithContent.content || '');
+            func(customConsole);
+        } else {
+            logs.push(`Cannot run file type: ${activeFileWithContent.language}`);
+        }
     } catch (error: any) {
-      customConsole.error(error.message);
+        customConsole.error(error.message);
     }
 
     const finalMessage = `\n✅ Finished running ${activeFileWithContent.name}`;
-    setConsoleOutput([initialMessage, ...logs, finalMessage]);
-  };
+    setConsoleOutput(prev => [initialMessage, ...logs, finalMessage]);
+};
+
 
   const handleRequestAISuggest = async (fileId: string, cursorContext: string) => {
     const file = allFiles.find(f => f.id === fileId);
@@ -232,6 +230,9 @@ export function EditorLayout() {
               </Button>
             </SheetTrigger>
             <SheetContent side="left" className="p-0 w-80">
+              <SheetHeader>
+                <SheetTitle className="sr-only">File Explorer</SheetTitle>
+              </SheetHeader>
               <FileTree
                 project={project}
                 activeFileId={activeFileId}
@@ -247,6 +248,9 @@ export function EditorLayout() {
               </Button>
             </SheetTrigger>
             <SheetContent side="right" className="p-0 w-80">
+               <SheetHeader>
+                 <SheetTitle className="sr-only">Tools and Output</SheetTitle>
+               </SheetHeader>
                <RightPanel
                     suggestions={suggestions.filter(s => s.fileId === activeFileId)}
                     diagnostics={diagnostics?.fileId === activeFileId ? diagnostics : null}
