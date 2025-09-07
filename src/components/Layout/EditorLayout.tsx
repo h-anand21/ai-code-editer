@@ -33,22 +33,29 @@ export function EditorLayout() {
   const [consoleOutput, setConsoleOutput] = React.useState<string[]>([]);
   const [suggestions, setSuggestions] = React.useState<Suggestion[]>([]);
   const { toast } = useToast();
-  
+
   const getAllFiles = (files: FileNode[]): FileNode[] => {
     return files.flatMap(f => (f.type === 'folder' && f.children) ? [f, ...getAllFiles(f.children)] : [f]);
   }
 
   const [allFiles, setAllFiles] = React.useState<FileNode[]>(() => getAllFiles(project.files));
 
-  const initialFileContents = React.useMemo(() => Object.fromEntries(
-    allFiles.filter(f => f.type === 'file').map(f => [f.id, f.content || ''])
-  ), [allFiles]);
+  const initialFileContents = React.useMemo(() => {
+    const allProjectFiles = getAllFiles(mockProject.files);
+    return Object.fromEntries(
+      allProjectFiles.filter(f => f.type === 'file').map(f => [f.id, f.content || ''])
+    );
+  }, []);
 
   const [fileContents, setFileContents] = React.useState<Record<string, string>>(initialFileContents);
 
   React.useEffect(() => {
-    setFileContents(initialFileContents);
-  }, [initialFileContents]);
+    const allProjectFiles = getAllFiles(project.files);
+    setAllFiles(allProjectFiles);
+    setFileContents(Object.fromEntries(
+        allProjectFiles.filter(f => f.type === 'file').map(f => [f.id, f.content || ''])
+    ));
+  }, [project]);
 
   const activeFile = allFiles.find(f => f?.id === activeFileId);
   const activeFileWithContent = activeFile ? { ...activeFile, content: fileContents[activeFile.id] ?? '' } : undefined;
@@ -67,13 +74,9 @@ export function EditorLayout() {
         lastModified: formatDistanceToNow(new Date(), { addSuffix: true }),
       };
       
-      const updatedFiles = [...allFiles, newFile];
-      setAllFiles(updatedFiles);
-      
-      const newProjectFiles = [...project.files, newFile];
-      setProject(prev => ({ ...prev, files: newProjectFiles }));
+      const updatedProjectFiles = [...project.files, newFile];
+      setProject(prev => ({ ...prev, files: updatedProjectFiles }));
 
-      setFileContents(prev => ({ ...prev, [newFile.id]: newFile.content || '' }));
       setActiveFileId(newFile.id);
     }
   };
@@ -100,17 +103,15 @@ export function EditorLayout() {
           // A real implementation would transpile TSX/TS first.
           // For now, we'll just use a sandboxed Function constructor.
           const capturedLogs: string[] = [];
-          const originalLog = console.log;
           const customConsole = {
             log: (...args: any[]) => {
-              capturedLogs.push(args.map(arg => typeof arg === 'string' ? arg : JSON.stringify(arg)).join(' '));
+              capturedLogs.push(args.map(arg => typeof arg === 'string' ? arg : JSON.stringify(arg, null, 2)).join(' '));
             }
           };
           
           const func = new Function('console', activeFileWithContent.content || '');
           func(customConsole);
           
-          console.log = originalLog; // Restore original console.log
           setConsoleOutput(prev => [...prev, ...capturedLogs, `✅ Finished running ${activeFileWithContent.name}`]);
 
       } else {
@@ -142,7 +143,7 @@ export function EditorLayout() {
         snippet: result.data.suggestion,
         explanation: result.data.explanation || 'AI-generated suggestion',
       };
-      setSuggestions(prev => [...prev, newSuggestion]);
+      setSuggestions(prev => [newSuggestion, ...prev]);
       toast({ title: 'AI Suggestion', description: 'New suggestion added!' });
     } else {
       toast({

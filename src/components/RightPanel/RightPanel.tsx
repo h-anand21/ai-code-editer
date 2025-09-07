@@ -43,7 +43,7 @@ import {
   Terminal
 } from "lucide-react";
 import type { Suggestion, FileNode } from "@/types/ui";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { Separator } from "../ui/separator";
 
 interface RightPanelProps {
@@ -125,9 +125,11 @@ export const RightPanel: React.FC<RightPanelProps> = ({ suggestions, activeFile,
             <TabsContent value="suggestions" className="m-0 h-full">
               <ScrollArea className="h-full">
                 <div className="p-4 space-y-4">
-                  {suggestions.map(s => (
-                    <SuggestionCard key={s.id} suggestion={s} />
-                  ))}
+                  <AnimatePresence>
+                    {suggestions.map(s => (
+                      <SuggestionCard key={s.id} suggestion={s} />
+                    ))}
+                  </AnimatePresence>
                 </div>
               </ScrollArea>
             </TabsContent>
