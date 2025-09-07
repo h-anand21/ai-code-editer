@@ -12,7 +12,7 @@ import { FileTree } from "../FileTree/FileTree";
 import { EditorShell } from "../Editor/EditorShell";
 import { RightPanel } from "../RightPanel/RightPanel";
 import { TopBar } from "../TopBar/TopBar";
-import { mockProject, mockSuggestions } from "@/lib/mock-data";
+import { mockProject } from "@/lib/mock-data";
 import { OnboardingModal } from "../Onboarding/OnboardingModal";
 import { PresenceBar } from "../Presence/PresenceBar";
 import { motion, AnimatePresence } from "framer-motion";
@@ -20,14 +20,19 @@ import { Sidebar, SidebarTrigger, SidebarContent } from "@/components/ui/sidebar
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "../ui/button";
 import { PanelLeft, PanelRight } from "lucide-react";
-import type { FileNode, Project } from "@/types/ui";
+import type { FileNode, Project, Suggestion } from "@/types/ui";
 import { formatDistanceToNow } from "date-fns";
+import { getCodeSuggestion } from "@/lib/actions";
+import { useToast } from "@/components/ui/use-toast";
+
 
 export function EditorLayout() {
   const isMobile = useIsMobile();
   const [project, setProject] = React.useState<Project>(mockProject);
   const [activeFileId, setActiveFileId] = React.useState<string | null>("3");
   const [consoleOutput, setConsoleOutput] = React.useState<string[]>([]);
+  const [suggestions, setSuggestions] = React.useState<Suggestion[]>([]);
+  const { toast } = useToast();
   
   const getAllFiles = (files: FileNode[]): FileNode[] => {
     return files.flatMap(f => (f.type === 'folder' && f.children) ? [f, ...getAllFiles(f.children)] : [f]);
@@ -116,6 +121,38 @@ export function EditorLayout() {
     }
   };
 
+  const handleRequestAISuggest = async (fileId: string, cursorContext: string) => {
+    const file = allFiles.find(f => f.id === fileId);
+    if (!file || file.type !== 'file') return;
+
+    const content = fileContents[fileId] || file.content || '';
+    
+    toast({ title: 'AI Suggestion', description: 'Generating AI suggestion...' });
+    const result = await getCodeSuggestion({
+      fileContent: content,
+      cursorContext: cursorContext,
+      language: file.language || 'plaintext',
+    });
+
+    if (result.success && result.data) {
+      const newSuggestion: Suggestion = {
+        id: `sug-${Date.now()}`,
+        fileId: fileId,
+        type: 'suggestion',
+        snippet: result.data.suggestion,
+        explanation: result.data.explanation || 'AI-generated suggestion',
+      };
+      setSuggestions(prev => [...prev, newSuggestion]);
+      toast({ title: 'AI Suggestion', description: 'New suggestion added!' });
+    } else {
+      toast({
+        variant: 'destructive',
+        title: 'Error',
+        description: result.error,
+      });
+    }
+  };
+
 
   if (isMobile) {
     return (
@@ -127,7 +164,7 @@ export function EditorLayout() {
               file={activeFileWithContent}
               onContentChange={handleContentChange}
               onSave={(id) => console.log(`Save ${id}`)}
-              onRequestAISuggest={(id, context) => console.log(`AI Suggest for ${id} at ${context}`)}
+              onRequestAISuggest={handleRequestAISuggest}
             />
           </main>
         </div>
@@ -155,7 +192,7 @@ export function EditorLayout() {
             </SheetTrigger>
             <SheetContent side="right" className="p-0 w-80">
                <RightPanel
-                    suggestions={mockSuggestions.filter(s => s.fileId === activeFileId)}
+                    suggestions={suggestions.filter(s => s.fileId === activeFileId)}
                     activeFile={activeFileWithContent}
                     consoleOutput={consoleOutput}
                 />
@@ -191,7 +228,7 @@ export function EditorLayout() {
             file={activeFileWithContent}
             onContentChange={handleContentChange}
             onSave={(id) => console.log(`Save ${id}`)}
-            onRequestAISuggest={(id, context) => console.log(`AI Suggest for ${id} at ${context}`)}
+            onRequestAISuggest={handleRequestAISuggest}
           />
         </main>
 
@@ -211,7 +248,7 @@ export function EditorLayout() {
                         className="w-[360px] h-full"
                     >
                         <RightPanel
-                            suggestions={mockSuggestions.filter(s => s.fileId === activeFileId)}
+                            suggestions={suggestions.filter(s => s.fileId === activeFileId)}
                             activeFile={activeFileWithContent}
                             consoleOutput={consoleOutput}
                         />

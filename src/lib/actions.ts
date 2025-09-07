@@ -2,18 +2,12 @@
 
 import { diagnoseCodeForBugs, DiagnoseCodeForBugsInput } from '@/ai/flows/ai-diagnose-code-for-bugs';
 import { suggestCodeCompletion, SuggestCodeCompletionInput } from '@/ai/flows/ai-suggest-code-completion';
-import { z } from 'zod';
-
-const codeSchema = z.object({
-  code: z.string(),
-  language: z.string(),
-});
 
 export async function getCodeSuggestion(input: SuggestCodeCompletionInput) {
   try {
     const result = await suggestCodeCompletion({
-      fileContent: input.code,
-      cursorContext: input.code, // Using full code as context for simplicity
+      fileContent: input.fileContent,
+      cursorContext: input.cursorContext,
       language: input.language,
     });
     return { success: true, data: result };
