@@ -10,7 +10,7 @@ export interface Project {
 
 export type FileNodeType = 'file' | 'folder';
 
-export type Language = 'typescript' | 'html' | 'css' | 'python' | 'json' | 'markdown';
+export type Language = 'typescript' | 'javascript' | 'html' | 'css' | 'python' | 'json' | 'markdown';
 
 export interface FileNode {
   id: string;

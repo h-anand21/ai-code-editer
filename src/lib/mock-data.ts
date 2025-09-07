@@ -45,7 +45,17 @@ const mockFiles: FileNode[] = [
         path: '/src/js',
         type: 'folder',
         lastModified: getRelativeTime(new Date(now.getTime() - 1000 * 60 * 7)),
-        children: [],
+        children: [
+          {
+            id: '8',
+            name: 'main.js',
+            path: '/src/js/main.js',
+            type: 'file',
+            language: 'javascript',
+            content: 'console.log("Hello from main.js!");',
+            lastModified: getRelativeTime(new Date(now.getTime() - 1000 * 60 * 1)),
+          },
+        ],
       },
       {
         id: '6',
