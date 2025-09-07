@@ -18,6 +18,16 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
@@ -56,7 +66,7 @@ const SuggestionCard: React.FC<{ suggestion: Suggestion }> = ({ suggestion }) =>
           <Bot className="w-5 h-5 text-primary" />
           <span>{suggestion.type === 'diagnostic' ? "Diagnostic" : "Suggestion"}</span>
         </CardTitle>
-        <CardDescription className="text-xs pt-1">{suggestion.explanation}</CardDescription>
+        <CardDescription className="text-xs pt-1 truncate">{suggestion.explanation}</CardDescription>
       </CardHeader>
       <CardContent>
         <pre className="bg-muted/50 p-3 rounded-lg text-xs font-code overflow-x-auto whitespace-pre-wrap break-words">
@@ -64,9 +74,25 @@ const SuggestionCard: React.FC<{ suggestion: Suggestion }> = ({ suggestion }) =>
         </pre>
       </CardContent>
       <CardFooter className="flex justify-end gap-2">
-        <Button variant="ghost" size="sm" aria-label="Explain suggestion">
-          <FileQuestion className="w-4 h-4 mr-1" /> Explain
-        </Button>
+        <AlertDialog>
+            <AlertDialogTrigger asChild>
+                <Button variant="ghost" size="sm" aria-label="Explain suggestion">
+                    <FileQuestion className="w-4 h-4 mr-1" /> Explain
+                </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+                <AlertDialogHeader>
+                    <AlertDialogTitle>AI Suggestion Explanation</AlertDialogTitle>
+                    <AlertDialogDescription>
+                        {suggestion.explanation}
+                    </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                    <AlertDialogAction>Got it</AlertDialogAction>
+                </AlertDialogFooter>
+            </AlertDialogContent>
+        </AlertDialog>
+
         <Button variant="ghost" size="sm" aria-label="Copy code snippet">
           <ClipboardCopy className="w-4 h-4 mr-1" /> Copy
         </Button>
