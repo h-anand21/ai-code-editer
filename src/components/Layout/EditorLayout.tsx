@@ -124,9 +124,9 @@ export function EditorLayout() {
                     capturedLogs.push(
                         args
                             .map(arg =>
-                                typeof arg === 'string'
-                                    ? arg
-                                    : JSON.stringify(arg, null, 2)
+                                typeof arg === 'object'
+                                    ? JSON.stringify(arg, null, 2)
+                                    : String(arg)
                             )
                             .join(' ')
                     );
