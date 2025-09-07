@@ -98,7 +98,7 @@ export function EditorLayout() {
 
   const handleRunCode = () => {
     if (!activeFileWithContent) {
-      setConsoleOutput(['Error: No active file to run.']);
+      setConsoleOutput(prev => [...prev, 'Error: No active file to run.']);
       return;
     }
 
@@ -110,9 +110,16 @@ export function EditorLayout() {
         );
         logs.push(...newMessages);
       },
+       error: (...args: any[]) => {
+        const newMessages = args.map(arg =>
+          typeof arg === 'object' ? JSON.stringify(arg, null, 2) : String(arg)
+        );
+        logs.push('❌ Error: ' + newMessages.join(' '));
+      },
     };
 
-    let newOutput = [`> Running ${activeFileWithContent.name}...`];
+    const initialMessage = `> Running ${activeFileWithContent.name}...`;
+    setConsoleOutput([initialMessage]);
 
     try {
       if (
@@ -123,16 +130,16 @@ export function EditorLayout() {
         // It's not perfectly secure but sufficient for this prototype.
         const func = new Function('console', activeFileWithContent.content || '');
         func(customConsole);
-        newOutput = [...newOutput, ...logs];
+        
       } else {
-        newOutput.push(`Cannot run file type: ${activeFileWithContent.language}`);
+        logs.push(`Cannot run file type: ${activeFileWithContent.language}`);
       }
     } catch (error: any) {
-      newOutput.push(`\n❌ Error: ${error.message}`);
+      customConsole.error(error.message);
     }
 
-    newOutput.push(`\n✅ Finished running ${activeFileWithContent.name}`);
-    setConsoleOutput(newOutput);
+    const finalMessage = `\n✅ Finished running ${activeFileWithContent.name}`;
+    setConsoleOutput([initialMessage, ...logs, finalMessage]);
   };
 
   const handleRequestAISuggest = async (fileId: string, cursorContext: string) => {
