@@ -95,7 +95,7 @@ export function EditorLayout() {
         return;
     }
 
-    setConsoleOutput(prev => [`> Running ${activeFileWithContent.name}...`]);
+    setConsoleOutput([`> Running ${activeFileWithContent.name}...`]);
 
     // Super simple "runner" for demo purposes.
     // WARNING: Using Function constructor is not safe for real applications.
@@ -127,7 +127,7 @@ export function EditorLayout() {
             setConsoleOutput(prev => [
                 ...prev,
                 ...capturedLogs,
-                `✅ Finished running ${activeFileWithContent.name}`,
+                `\n✅ Finished running ${activeFileWithContent.name}`,
             ]);
         } else {
             setConsoleOutput(prev => [
@@ -136,7 +136,7 @@ export function EditorLayout() {
             ]);
         }
     } catch (error: any) {
-        setConsoleOutput(prev => [...prev, `Error: ${error.message}`]);
+        setConsoleOutput(prev => [...prev, `\n❌ Error: ${error.message}`]);
     }
   };
 
