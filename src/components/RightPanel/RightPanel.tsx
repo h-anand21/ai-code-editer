@@ -50,9 +50,10 @@ interface RightPanelProps {
   activeFile: FileNode | undefined;
   consoleOutput: string[];
   onRequestDiagnostics: () => void;
+  onApplySuggestion: (fileId: string, snippet: string) => void;
 }
 
-const SuggestionCard: React.FC<{ suggestion: Suggestion }> = ({ suggestion }) => (
+const SuggestionCard: React.FC<{ suggestion: Suggestion, onApply: (fileId: string, snippet: string) => void }> = ({ suggestion, onApply }) => (
   <motion.div
     layout
     initial={{ opacity: 0, y: 20 }}
@@ -66,7 +67,7 @@ const SuggestionCard: React.FC<{ suggestion: Suggestion }> = ({ suggestion }) =>
           <Bot className="w-5 h-5 text-primary" />
           <span>{suggestion.type === 'diagnostic' ? "Diagnostic" : "Suggestion"}</span>
         </CardTitle>
-        <CardDescription className="text-xs pt-1 truncate">{suggestion.explanation}</CardDescription>
+        <CardDescription className="text-xs pt-1">{suggestion.explanation}</CardDescription>
       </CardHeader>
       <CardContent>
         <pre className="bg-muted/50 p-3 rounded-lg text-xs font-code overflow-x-auto whitespace-pre-wrap break-words">
@@ -96,7 +97,7 @@ const SuggestionCard: React.FC<{ suggestion: Suggestion }> = ({ suggestion }) =>
         <Button variant="ghost" size="sm" aria-label="Copy code snippet">
           <ClipboardCopy className="w-4 h-4 mr-1" /> Copy
         </Button>
-        <Button size="sm" aria-label="Apply suggestion">
+        <Button size="sm" aria-label="Apply suggestion" onClick={() => onApply(suggestion.fileId, suggestion.snippet)}>
           <ThumbsUp className="w-4 h-4 mr-1" /> Apply
         </Button>
       </CardFooter>
@@ -104,7 +105,7 @@ const SuggestionCard: React.FC<{ suggestion: Suggestion }> = ({ suggestion }) =>
   </motion.div>
 );
 
-export const RightPanel: React.FC<RightPanelProps> = ({ suggestions, diagnostics, activeFile, consoleOutput, onRequestDiagnostics }) => {
+export const RightPanel: React.FC<RightPanelProps> = ({ suggestions, diagnostics, activeFile, consoleOutput, onRequestDiagnostics, onApplySuggestion }) => {
   const isWebViewable = activeFile?.language === 'html';
   
   return (
@@ -133,7 +134,7 @@ export const RightPanel: React.FC<RightPanelProps> = ({ suggestions, diagnostics
                         </div>
                     ) : (
                         suggestions.map(s => (
-                            <SuggestionCard key={s.id} suggestion={s} />
+                            <SuggestionCard key={s.id} suggestion={s} onApply={onApplySuggestion} />
                         ))
                     )}
                   </AnimatePresence>
