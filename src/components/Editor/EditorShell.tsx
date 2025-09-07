@@ -37,13 +37,15 @@ export const EditorShell: React.FC<EditorShellProps> = ({
         if (!prevOpenFiles.some(f => f.id === file.id)) {
           return [...prevOpenFiles, file];
         }
-        return prevOpenFiles;
+        // If file is already open, just update its content
+        return prevOpenFiles.map(f => f.id === file.id ? file : f);
       });
       setActiveTab(file.id);
     }
   }, [file]);
 
   const handleLocalContentChange = (fileId: string, newContent: string) => {
+    setOpenFiles(prev => prev.map(f => f.id === fileId ? {...f, content: newContent} : f));
     onContentChange(fileId, newContent);
   };
 
