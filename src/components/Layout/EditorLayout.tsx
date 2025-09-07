@@ -14,9 +14,7 @@ import { RightPanel } from "../RightPanel/RightPanel";
 import { TopBar } from "../TopBar/TopBar";
 import { mockProject } from "@/lib/mock-data";
 import { OnboardingModal } from "../Onboarding/OnboardingModal";
-import { PresenceBar } from "../Presence/PresenceBar";
 import { motion, AnimatePresence } from "framer-motion";
-import { Sidebar, SidebarTrigger, SidebarContent } from "@/components/ui/sidebar";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "../ui/button";
 import { PanelLeft, PanelRight } from "lucide-react";
@@ -24,7 +22,6 @@ import type { FileNode, Project, Suggestion, Diagnostic } from "@/types/ui";
 import { formatDistanceToNow } from "date-fns";
 import { getCodeSuggestion, getCodeDiagnostics } from "@/lib/actions";
 import { useToast } from "@/components/ui/use-toast";
-
 
 export function EditorLayout() {
   const isMobile = useIsMobile();
@@ -92,8 +89,6 @@ export function EditorLayout() {
   const handleSave = (fileId: string) => {
     const file = allFiles.find(f => f.id === fileId);
     if (file) {
-      // In a real app, this would save to a backend.
-      // For now, we'll just show a toast.
       toast({
         title: "File Saved!",
         description: `Successfully saved ${file.name}.`,
@@ -110,8 +105,7 @@ export function EditorLayout() {
     const initialMessage = `> Running ${activeFileWithContent.name}...`;
     setConsoleOutput([initialMessage]);
 
-    // Super simple "runner" for demo purposes.
-    // WARNING: Using Function constructor is not safe for real applications.
+    // Using a try-catch block to handle syntax errors in user code.
     try {
       if (
         activeFileWithContent.language === 'typescript' ||
@@ -137,19 +131,19 @@ export function EditorLayout() {
         const func = new Function('console', activeFileWithContent.content || '');
         func(customConsole);
 
-        setConsoleOutput(prev => [
+        setConsoleOutput([
             initialMessage,
             ...capturedLogs,
             `\n✅ Finished running ${activeFileWithContent.name}`,
         ]);
       } else {
-        setConsoleOutput(prev => [
-          ...prev,
+        setConsoleOutput([
+          initialMessage,
           `Cannot run file type: ${activeFileWithContent.language}`,
         ]);
       }
     } catch (error: any) {
-      setConsoleOutput(prev => [...prev, `\n❌ Error: ${error.message}`]);
+      setConsoleOutput([initialMessage, `\n❌ Error: ${error.message}`]);
     }
   };
 

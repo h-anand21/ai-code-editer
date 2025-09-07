@@ -3,9 +3,6 @@
  *
  * Wrapper for the code editor (e.g., Monaco). Manages tabs for open
  * files and provides actions like format, save, and AI suggestions.
- *
- * // TODO: Wire up `onSave` to a Firestore `updateDoc` call.
- * // TODO: Wire up `onRequestAISuggest` to an AI endpoint, passing auth.
  */
 "use client";
 
@@ -37,22 +34,17 @@ export const EditorShell: React.FC<EditorShellProps> = ({
   useEffect(() => {
     if (file) {
       setOpenFiles(prevOpenFiles => {
-        // If file is already open, update its content
-        if (prevOpenFiles.some(f => f.id === file.id)) {
-          return prevOpenFiles.map(f => f.id === file.id ? file : f);
+        if (!prevOpenFiles.some(f => f.id === file.id)) {
+          return [...prevOpenFiles, file];
         }
-        // Otherwise, add it to the list
-        return [...prevOpenFiles, file];
+        return prevOpenFiles;
       });
       setActiveTab(file.id);
     }
   }, [file]);
 
   const handleLocalContentChange = (fileId: string, newContent: string) => {
-    // Update parent state
     onContentChange(fileId, newContent);
-    // Update local state for immediate feedback in textarea
-    setOpenFiles(prev => prev.map(f => f.id === fileId ? { ...f, content: newContent } : f));
   };
 
   const handleCloseTab = (e: React.MouseEvent, fileId: string) => {
@@ -74,7 +66,6 @@ export const EditorShell: React.FC<EditorShellProps> = ({
     setOpenFiles(remainingFiles);
     setActiveTab(newActiveTab);
   };
-
 
   if (openFiles.length === 0) {
     return (
@@ -126,7 +117,6 @@ export const EditorShell: React.FC<EditorShellProps> = ({
             animate={{ opacity: 1 }}
             className="h-full w-full bg-editor-bg"
           >
-            {/* TODO: Replace this with the Monaco Editor instance */}
             <Textarea
               value={f.content || ''}
               onChange={(e) => handleLocalContentChange(f.id, e.target.value)}

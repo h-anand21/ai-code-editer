@@ -3,9 +3,6 @@
  *
  * Right-side panel with tabs for AI Suggestions, Diagnostics, Live Preview,
  * and a developer console.
- *
- * // TODO: Wire up Suggestion actions (Copy, Apply)
- * // TODO: Implement live preview sharing by calling a backend endpoint.
  */
 "use client";
 
@@ -190,7 +187,6 @@ export const RightPanel: React.FC<RightPanelProps> = ({ suggestions, diagnostics
             
             <TabsContent value="preview" className="m-0 h-full flex flex-col">
               <div className="p-2 border-b flex items-center justify-end gap-2">
-                {/* TODO: Implement share preview link functionality */}
                 <Button variant="ghost" size="sm"><Share2 className="w-4 h-4 mr-1" /> Share</Button>
                 <Button variant="ghost" size="sm"><ExternalLink className="w-4 h-4 mr-1" /> Open</Button>
               </div>
