@@ -40,16 +40,19 @@ import {
   Share2,
   ThumbsUp,
   FileQuestion,
-  Terminal
+  Terminal,
+  ShieldAlert
 } from "lucide-react";
-import type { Suggestion, FileNode } from "@/types/ui";
+import type { Suggestion, FileNode, Diagnostic } from "@/types/ui";
 import { motion, AnimatePresence } from "framer-motion";
 import { Separator } from "../ui/separator";
 
 interface RightPanelProps {
   suggestions: Suggestion[];
+  diagnostics: Diagnostic | null;
   activeFile: FileNode | undefined;
   consoleOutput: string[];
+  onRequestDiagnostics: () => void;
 }
 
 const SuggestionCard: React.FC<{ suggestion: Suggestion }> = ({ suggestion }) => (
@@ -104,7 +107,7 @@ const SuggestionCard: React.FC<{ suggestion: Suggestion }> = ({ suggestion }) =>
   </motion.div>
 );
 
-export const RightPanel: React.FC<RightPanelProps> = ({ suggestions, activeFile, consoleOutput }) => {
+export const RightPanel: React.FC<RightPanelProps> = ({ suggestions, diagnostics, activeFile, consoleOutput, onRequestDiagnostics }) => {
   const isWebViewable = activeFile?.language === 'html';
   
   return (
@@ -142,11 +145,47 @@ export const RightPanel: React.FC<RightPanelProps> = ({ suggestions, activeFile,
             </TabsContent>
             
             <TabsContent value="diagnostics" className="m-0 h-full">
-              <ScrollArea className="h-full">
-                <div className="p-4 space-y-4">
-                  {/* For future diagnostics implementation */}
-                </div>
-              </ScrollArea>
+               <div className="p-4 flex flex-col gap-4 h-full">
+                <Button onClick={onRequestDiagnostics}>
+                  <ShieldAlert className="w-4 h-4 mr-2" />
+                  Run Diagnostics
+                </Button>
+                <ScrollArea className="flex-1">
+                  <AnimatePresence>
+                    {diagnostics ? (
+                      <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="space-y-4"
+                      >
+                        <Card>
+                          <CardHeader>
+                            <CardTitle className="text-base">Analysis</CardTitle>
+                          </CardHeader>
+                          <CardContent className="text-sm">
+                            <p>{diagnostics.analysis}</p>
+                          </CardContent>
+                        </Card>
+                        <Card>
+                          <CardHeader>
+                            <CardTitle className="text-base">Suggestions</CardTitle>
+                          </CardHeader>
+                          <CardContent>
+                            <pre className="bg-muted/50 p-3 rounded-lg text-xs font-code overflow-x-auto whitespace-pre-wrap break-words">
+                              <code>{diagnostics.suggestions}</code>
+                            </pre>
+                          </CardContent>
+                        </Card>
+                      </motion.div>
+                    ) : (
+                      <div className="text-center text-muted-foreground mt-8">
+                        <ShieldAlert className="w-10 h-10 mx-auto mb-2" />
+                        <p>Run diagnostics to analyze your code for bugs and security issues.</p>
+                      </div>
+                    )}
+                  </AnimatePresence>
+                </ScrollArea>
+              </div>
             </TabsContent>
             
             <TabsContent value="preview" className="m-0 h-full flex flex-col">

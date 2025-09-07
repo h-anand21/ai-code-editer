@@ -20,9 +20,9 @@ import { Sidebar, SidebarTrigger, SidebarContent } from "@/components/ui/sidebar
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "../ui/button";
 import { PanelLeft, PanelRight } from "lucide-react";
-import type { FileNode, Project, Suggestion } from "@/types/ui";
+import type { FileNode, Project, Suggestion, Diagnostic } from "@/types/ui";
 import { formatDistanceToNow } from "date-fns";
-import { getCodeSuggestion } from "@/lib/actions";
+import { getCodeSuggestion, getCodeDiagnostics } from "@/lib/actions";
 import { useToast } from "@/components/ui/use-toast";
 
 
@@ -32,6 +32,7 @@ export function EditorLayout() {
   const [activeFileId, setActiveFileId] = React.useState<string | null>("3");
   const [consoleOutput, setConsoleOutput] = React.useState<string[]>([]);
   const [suggestions, setSuggestions] = React.useState<Suggestion[]>([]);
+  const [diagnostics, setDiagnostics] = React.useState<Diagnostic | null>(null);
   const { toast } = useToast();
 
   const getAllFiles = (files: FileNode[]): FileNode[] => {
@@ -154,6 +155,32 @@ export function EditorLayout() {
     }
   };
 
+  const handleRequestDiagnostics = async () => {
+    if (!activeFileWithContent) return;
+
+    toast({ title: "AI Diagnostics", description: "Running diagnostics..." });
+    setDiagnostics(null);
+
+    const result = await getCodeDiagnostics({
+      code: activeFileWithContent.content || "",
+      language: activeFileWithContent.language || "plaintext",
+    });
+
+    if (result.success && result.data) {
+      setDiagnostics({
+        id: `diag-${Date.now()}`,
+        fileId: activeFileWithContent.id,
+        ...result.data,
+      });
+      toast({ title: "AI Diagnostics", description: "Diagnostics complete!" });
+    } else {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: result.error,
+      });
+    }
+  };
 
   if (isMobile) {
     return (
@@ -194,8 +221,10 @@ export function EditorLayout() {
             <SheetContent side="right" className="p-0 w-80">
                <RightPanel
                     suggestions={suggestions.filter(s => s.fileId === activeFileId)}
+                    diagnostics={diagnostics?.fileId === activeFileId ? diagnostics : null}
                     activeFile={activeFileWithContent}
                     consoleOutput={consoleOutput}
+                    onRequestDiagnostics={handleRequestDiagnostics}
                 />
             </SheetContent>
           </Sheet>
@@ -250,8 +279,10 @@ export function EditorLayout() {
                     >
                         <RightPanel
                             suggestions={suggestions.filter(s => s.fileId === activeFileId)}
+                            diagnostics={diagnostics?.fileId === activeFileId ? diagnostics : null}
                             activeFile={activeFileWithContent}
                             consoleOutput={consoleOutput}
+                            onRequestDiagnostics={handleRequestDiagnostics}
                         />
                     </motion.div>
                 )}

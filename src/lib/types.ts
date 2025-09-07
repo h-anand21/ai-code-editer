@@ -41,6 +41,13 @@ export interface Suggestion {
   type: 'suggestion' | 'diagnostic';
 }
 
+export interface Diagnostic {
+    id: string;
+    fileId: string;
+    analysis: string;
+    suggestions: string;
+}
+
 export interface PresenceUser {
   id: string;
   name: string;
