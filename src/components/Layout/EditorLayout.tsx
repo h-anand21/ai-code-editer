@@ -124,6 +124,7 @@ export function EditorLayout() {
     try {
       if (
         activeFileWithContent.language === 'typescript' ||
+        activeFileWithContent.language === 'javascript' ||
         activeFileWithContent.language === 'json'
       ) {
         // This is a sandboxed execution using Function constructor.
