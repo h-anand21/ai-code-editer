@@ -89,6 +89,18 @@ export function EditorLayout() {
     }));
   };
 
+  const handleSave = (fileId: string) => {
+    const file = allFiles.find(f => f.id === fileId);
+    if (file) {
+      // In a real app, this would save to a backend.
+      // For now, we'll just show a toast.
+      toast({
+        title: "File Saved!",
+        description: `Successfully saved ${file.name}.`,
+      });
+    }
+  };
+
   const handleRunCode = () => {
     if (!activeFileWithContent) {
         setConsoleOutput(prev => [...prev, 'Error: No active file to run.']);
@@ -208,7 +220,7 @@ export function EditorLayout() {
             <EditorShell
               file={activeFileWithContent}
               onContentChange={handleContentChange}
-              onSave={(id) => console.log(`Save ${id}`)}
+              onSave={handleSave}
               onRequestAISuggest={handleRequestAISuggest}
             />
           </main>
@@ -274,7 +286,7 @@ export function EditorLayout() {
           <EditorShell
             file={activeFileWithContent}
             onContentChange={handleContentChange}
-            onSave={(id) => console.log(`Save ${id}`)}
+            onSave={handleSave}
             onRequestAISuggest={handleRequestAISuggest}
           />
         </main>
