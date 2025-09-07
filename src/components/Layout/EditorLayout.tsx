@@ -205,6 +205,14 @@ export function EditorLayout() {
       });
     }
   };
+  
+  const handleApplySuggestion = (fileId: string, snippet: string) => {
+    handleContentChange(fileId, snippet);
+    toast({
+      title: "Suggestion Applied",
+      description: "The AI suggestion has been applied to the file.",
+    });
+  };
 
   if (isMobile) {
     return (
@@ -249,6 +257,7 @@ export function EditorLayout() {
                     activeFile={activeFileWithContent}
                     consoleOutput={consoleOutput}
                     onRequestDiagnostics={handleRequestDiagnostics}
+                    onApplySuggestion={handleApplySuggestion}
                 />
             </SheetContent>
           </Sheet>
@@ -307,6 +316,7 @@ export function EditorLayout() {
                             activeFile={activeFileWithContent}
                             consoleOutput={consoleOutput}
                             onRequestDiagnostics={handleRequestDiagnostics}
+                            onApplySuggestion={handleApplySuggestion}
                         />
                     </motion.div>
                 )}
