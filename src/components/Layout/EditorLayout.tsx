@@ -98,47 +98,41 @@ export function EditorLayout() {
 
   const handleRunCode = () => {
     if (!activeFileWithContent) {
-      setConsoleOutput(prev => [...prev, 'Error: No active file to run.']);
+      setConsoleOutput(['Error: No active file to run.']);
       return;
     }
 
-    const initialMessage = `> Running ${activeFileWithContent.name}...`;
-    const finalOutput = [initialMessage];
+    const output: string[] = [];
+    output.push(`> Running ${activeFileWithContent.name}...`);
 
     try {
       if (
         activeFileWithContent.language === 'typescript' ||
         activeFileWithContent.language === 'json'
       ) {
-        const capturedLogs: string[] = [];
         const customConsole = {
           log: (...args: any[]) => {
-            capturedLogs.push(
-              args
-                .map(arg =>
-                  typeof arg === 'object'
-                    ? JSON.stringify(arg, null, 2)
-                    : String(arg)
-                )
-                .join(' ')
+            output.push(
+              ...args.map(arg =>
+                typeof arg === 'object' ? JSON.stringify(arg, null, 2) : String(arg)
+              )
             );
           },
         };
-
+        
         // This is a sandboxed execution of the user's code.
         const func = new Function('console', activeFileWithContent.content || '');
         func(customConsole);
         
-        finalOutput.push(...capturedLogs);
-        finalOutput.push(`\n✅ Finished running ${activeFileWithContent.name}`);
-
+        output.push(`\n✅ Finished running ${activeFileWithContent.name}`);
       } else {
-        finalOutput.push(`Cannot run file type: ${activeFileWithContent.language}`);
+        output.push(`Cannot run file type: ${activeFileWithContent.language}`);
       }
     } catch (error: any) {
-      finalOutput.push(`\n❌ Error: ${error.message}`);
+      output.push(`\n❌ Error: ${error.message}`);
     }
-    setConsoleOutput(finalOutput);
+    
+    setConsoleOutput(output);
   };
 
   const handleRequestAISuggest = async (fileId: string, cursorContext: string) => {
