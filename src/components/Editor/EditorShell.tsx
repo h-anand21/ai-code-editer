@@ -35,11 +35,11 @@ export const EditorShell: React.FC<EditorShellProps> = ({
   const [activeTab, setActiveTab] = useState<string | null>(null);
 
   useEffect(() => {
-    if (file && !openFiles.some(f => f.id === file.id)) {
-        setOpenFiles(prev => [...prev, file]);
-    }
     if (file) {
-        setActiveTab(file.id);
+      if (!openFiles.some(f => f.id === file.id)) {
+        setOpenFiles(prev => [...prev, file]);
+      }
+      setActiveTab(file.id);
     }
   }, [file]);
 
