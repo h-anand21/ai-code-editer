@@ -4,7 +4,7 @@
  * Right-side panel with tabs for AI Suggestions, Diagnostics, Live Preview,
  * and a developer console.
  *
- * // TODO: Wire up Suggestion actions (Copy, Apply, Explain)
+ * // TODO: Wire up Suggestion actions (Copy, Apply)
  * // TODO: Implement live preview sharing by calling a backend endpoint.
  */
 "use client";
@@ -126,9 +126,16 @@ export const RightPanel: React.FC<RightPanelProps> = ({ suggestions, activeFile,
               <ScrollArea className="h-full">
                 <div className="p-4 space-y-4">
                   <AnimatePresence>
-                    {suggestions.map(s => (
-                      <SuggestionCard key={s.id} suggestion={s} />
-                    ))}
+                    {suggestions.length === 0 ? (
+                        <div className="text-center text-muted-foreground mt-8">
+                            <Bot className="w-10 h-10 mx-auto mb-2" />
+                            <p>Click "AI Suggest" in the editor to get a new suggestion.</p>
+                        </div>
+                    ) : (
+                        suggestions.map(s => (
+                            <SuggestionCard key={s.id} suggestion={s} />
+                        ))
+                    )}
                   </AnimatePresence>
                 </div>
               </ScrollArea>
