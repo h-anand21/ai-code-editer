@@ -7,7 +7,7 @@
  * // TODO: Wire up `onSave` to a Firestore `updateDoc` call.
  * // TODO: Wire up `onRequestAISuggest` to an AI endpoint, passing auth.
  */
-"use-client";
+"use client";
 
 import React, { useState, useEffect } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -35,7 +35,7 @@ export const EditorShell: React.FC<EditorShellProps> = ({
   const [activeTab, setActiveTab] = useState<string | null>(null);
 
   useEffect(() => {
-    if (file && !openFiles.find(f => f.id === file.id)) {
+    if (file && !openFiles.some(f => f.id === file.id)) {
         setOpenFiles(prev => [...prev, file]);
     }
     if (file) {
